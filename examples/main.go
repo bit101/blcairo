@@ -5,60 +5,55 @@ package main
 
 import (
 	"math"
-	"math/rand"
 
+	"github.com/bit101/bitlib/random"
 	cairo "github.com/bit101/blcairo"
 )
 
 func main() {
-	text()
-}
-
-func text() {
-	surface := cairo.NewSurface(240, 80)
+	surface := cairo.NewSurface(800, 800)
 	context := cairo.NewContext(surface)
-	context.SetSourceRGB(1, 1, 1)
-	context.Paint()
-	context.SelectFontFace("Arial", cairo.FontSlantNormal, cairo.FontWeightBold)
-	context.SetFontSize(32.0)
-	context.SetSourceRGB(0.0, 0.0, 1.0)
-	context.MoveTo(10.0, 50.0)
-	context.ShowText("Hello World")
+	context.BlackOnWhite()
+	text(context)
+	shapes(context)
 	surface.WriteToPNG("out.png")
 	surface.Finish()
 }
 
-func shapes() {
-	surface := cairo.NewSurface(600, 230)
-	context := cairo.NewContext(surface)
-	context.SetSourceRGB(1, 1, 1)
-	context.Paint()
-	context.SetSourceRGB(0, 0, 0)
+func text(context *cairo.Context) {
+	context.SelectFontFace("Arial", cairo.FontSlantNormal, cairo.FontWeightBold)
+	context.SetFontSize(32.0)
+	context.FillText("Hello World", 10, 50)
+}
 
-	context.Rectangle(10, 10, 100, 100)
-	context.Fill()
+func shapes(context *cairo.Context) {
+	context.Translate(0, 50)
 
-	context.Rectangle(120, 10, 100, 100)
-	context.Stroke()
+	context.FillRectangle(10, 10, 100, 100)
 
-	context.Arc(280, 60, 50, 0, math.Pi*2)
-	context.Fill()
+	context.StrokeRectangle(120, 10, 100, 100)
 
-	context.Arc(390, 60, 50, 0, math.Pi*2)
-	context.Stroke()
+	context.FillCircle(280, 60, 50)
+
+	context.StrokeCircle(390, 60, 50)
 
 	for i := 0; i < 50; i++ {
-		context.MoveTo(450+rand.Float64()*100, 10+rand.Float64()*100)
-		context.LineTo(450+rand.Float64()*100, 10+rand.Float64()*100)
+		context.MoveTo(random.FloatRange(450, 550), random.FloatRange(10, 110))
+		context.LineTo(random.FloatRange(450, 550), random.FloatRange(10, 110))
 		context.Stroke()
 	}
 
 	context.MoveTo(10, 120)
-	context.CurveTo(590, 120, 10, 220, 590, 220)
-	context.Stroke()
+	context.StrokeCurveTo(590, 120, 10, 220, 590, 220)
 
-	surface.WriteToPNG("out.png")
-	surface.Finish()
+	context.SetLineWidth(0.15)
+	for i := 1; i < 6; i++ {
+		random.Seed(0)
+		context.StrokeFractalLine(10, 350, 790, 350, 0.6, i)
+	}
+	random.Seed(0)
+	context.SetLineWidth(0.8)
+	context.StrokeFractalLine(10, 350, 790, 350, 0.6, 6)
 }
 
 func colors() {
