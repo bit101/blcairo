@@ -174,3 +174,9 @@ func (s *Surface) GetHeight() int {
 func (s *Surface) GetStride() int {
 	return int(C.cairo_image_surface_get_stride(s.surface))
 }
+
+// GetPixel returns the b, g, r, a value at a given x, y location.
+func (s *Surface) GetPixel(data []byte, x int, y int) (byte, byte, byte, byte) {
+	index := (y*s.GetWidth() + x) * 4
+	return data[index+2], data[index+1], data[index], data[index+3]
+}

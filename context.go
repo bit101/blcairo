@@ -15,13 +15,16 @@ import (
 
 // Context represents a cairo context
 type Context struct {
-	context *C.cairo_t
+	context       *C.cairo_t
+	Width, Height float64
 }
 
 // NewContext creates a new cairo context.
 func NewContext(surface *Surface) *Context {
 	return &Context{
 		C.cairo_create(surface.surface),
+		float64(surface.GetWidth()),
+		float64(surface.GetHeight()),
 	}
 }
 
