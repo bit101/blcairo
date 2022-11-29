@@ -1,122 +1,54 @@
-// Package main contains an executable
+// Package main renders an image, gif or video
 package main
 
-// Simple test for cairo package
-
 import (
-	"math"
-
-	"github.com/bit101/bitlib/random"
+	"github.com/bit101/bitlib/blcolor"
+	"github.com/bit101/bitlib/blmath"
 	cairo "github.com/bit101/blcairo"
+	"github.com/bit101/blcairo/render"
+	"github.com/bit101/blcairo/target"
 )
 
 func main() {
-	surface := cairo.NewSurface(800, 800)
-	context := cairo.NewContext(surface)
+	renderTarget := target.SpriteSheet
+
+	switch renderTarget {
+	case target.Image:
+		render.Image(800, 800, "out.png", renderFrame, 0.0)
+		render.ViewImage("out.png")
+		break
+
+	case target.SpriteSheet:
+		render.SpriteSheet(40, 40, blcolor.White(), "out.png", 25, renderSpriteSheetFrame)
+		render.ViewImage("out.png")
+		break
+
+	case target.Gif:
+		render.Frames(400, 400, 60, "frames", renderFrame)
+		render.MakeGIF("ffmpeg", "frames", "out.gif", 30)
+		render.ViewImage("out.gif")
+		break
+
+	case target.Video:
+		render.Frames(1280, 800, 60, "frames", renderFrame)
+		render.ConvertToYoutube("frames", "out.mp4", 60)
+		render.VLC("out.mp4", true)
+		break
+	}
+}
+
+func renderFrame(context *cairo.Context, width, height, percent float64) {
 	context.BlackOnWhite()
-	text(context)
-	shapes(context)
-	surface.WriteToPNG("out.png")
-	surface.Finish()
+	context.Save()
+	context.TranslateCenter()
+	context.DrawAxes()
+	r := blmath.LerpSin(percent, 0, width/2)
+	context.FillCircle(0, 0, r)
+	context.Restore()
 }
 
-func text(context *cairo.Context) {
-	context.SelectFontFace("Arial", cairo.FontSlantNormal, cairo.FontWeightBold)
-	context.SetFontSize(32.0)
-	context.FillText("Hello World", 10, 50)
-}
-
-func shapes(context *cairo.Context) {
-	context.Translate(0, 50)
-
-	context.FillRectangle(10, 10, 100, 100)
-
-	context.StrokeRectangle(120, 10, 100, 100)
-
-	context.FillCircle(280, 60, 50)
-
-	context.StrokeCircle(390, 60, 50)
-
-	for i := 0; i < 50; i++ {
-		context.MoveTo(random.FloatRange(450, 550), random.FloatRange(10, 110))
-		context.LineTo(random.FloatRange(450, 550), random.FloatRange(10, 110))
-		context.Stroke()
-	}
-
-	context.MoveTo(10, 120)
-	context.StrokeCurveTo(590, 120, 10, 220, 590, 220)
-
-	context.SetLineWidth(0.15)
-	for i := 1; i < 6; i++ {
-		random.Seed(0)
-		context.StrokeFractalLine(10, 350, 790, 350, 0.6, i)
-	}
-	random.Seed(0)
-	context.SetLineWidth(0.8)
-	context.StrokeFractalLine(10, 350, 790, 350, 0.6, 6)
-}
-
-func colors() {
-	surface := cairo.NewSurface(600, 600)
-	context := cairo.NewContext(surface)
-	for i := 0.0; i < 100; i++ {
-		for j := 0.0; j < 100; j++ {
-			dist := math.Hypot(i*6-300, j*6-300)
-			red := i / 100
-			green := math.Max(0, 1.0-dist/200)
-			blue := j / 100
-			context.SetSourceRGB(red, green, blue)
-			context.Rectangle(i*6, j*6, 6, 6)
-			context.Fill()
-		}
-	}
-
-	surface.WriteToPNG("out.png")
-	surface.Finish()
-}
-
-func gradients() {
-	surface := cairo.NewSurface(600, 300)
-	context := cairo.NewContext(surface)
-	radialPattern := cairo.CreateRadialGradient(150, 150, 0, 150, 150, 150)
-	radialPattern.AddColorStopRGB(0, 1, 0, 0)
-	radialPattern.AddColorStopRGB(1, 0, 0, 1)
-	context.SetSource(radialPattern)
-	context.Rectangle(0, 0, 300, 300)
-	context.Fill()
-
-	linearPattern := cairo.CreateLinearGradient(300, 0, 600, 300)
-	linearPattern.AddColorStopRGB(0, 1, 0, 0)
-	linearPattern.AddColorStopRGB(1, 0, 0, 1)
-	context.SetSource(linearPattern)
-	context.Rectangle(300, 0, 300, 300)
-	context.Fill()
-
-	surface.WriteToPNG("out.png")
-	surface.Finish()
-}
-
-func mesh() {
-	surface := cairo.NewSurface(600, 600)
-	context := cairo.NewContext(surface)
-	pattern := cairo.CreateMesh()
-
-	pattern.BeginPatch()
-	pattern.MoveTo(100, 100)
-	pattern.LineTo(500, 100)
-	pattern.LineTo(500, 500)
-	pattern.LineTo(100, 500)
-
-	pattern.SetCornerColorRGB(0, 1, 0, 0)
-	pattern.SetCornerColorRGB(1, 0, 1, 0)
-	pattern.SetCornerColorRGB(2, 0, 0, 1)
-	pattern.SetCornerColorRGB(3, 1, 1, 0)
-	pattern.EndPatch()
-
-	context.SetSource(pattern)
-	context.Rectangle(0, 0, 600, 600)
-	context.Fill()
-
-	surface.WriteToPNG("out.png")
-	surface.Finish()
+func renderSpriteSheetFrame(context *cairo.Context, width, height, percent float64) {
+	context.SetSourceBlack()
+	r := blmath.LerpSin(percent, 2, width*0.45)
+	context.FillCircle(width/2, height/2, r)
 }

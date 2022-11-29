@@ -10,19 +10,6 @@ import (
 	cairo "github.com/bit101/blcairo"
 )
 
-const (
-	// None will render nothing.
-	None = iota
-	// ImageTarget will render an image.
-	ImageTarget
-	// GifTarget will render an animated gif.
-	GifTarget
-	// VideoTarget will render a video.
-	VideoTarget
-	// SpriteSheetTarget will render a sprite sheet.
-	SpriteSheetTarget
-)
-
 // FrameFunc is the interface for a function that renders a single frame.
 type FrameFunc func(*cairo.Context, float64, float64, float64)
 
@@ -55,7 +42,7 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 	y := 0.0
 	nf := float64(numFrames)
 	size := math.Ceil(math.Sqrt(nf))
-	surface := cairo.NewSurface(int(width), int(height))
+	surface := cairo.NewSurface(int(width*size), int(height*size))
 	context := cairo.NewContext(surface)
 	context.ClearColor(bg)
 
