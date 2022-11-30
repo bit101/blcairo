@@ -67,14 +67,30 @@ func (d *LogDisplay) Set(value, x, y float64) {
 	}
 }
 
-// Get calculates the logarithmic value of the pixel.
+// GetLog calculates the logarithmic value of the pixel.
 // This should be a value from 0.0 to 1.0
 // which can be mapped to a gray scale value or a range of colors.
-func (d *LogDisplay) Get(x, y int) float64 {
-	xx, yy := x, y
-	value := d.values[xx+yy*d.width]
+func (d *LogDisplay) GetLog(x, y int) float64 {
+	value := d.values[x+y*d.width]
+	if value == d.min {
+		return 0
+	}
 	if d.trackMins && value == 0 {
 		return 0
 	}
 	return math.Log(value-d.min) / math.Log(d.max-d.min)
+}
+
+// GetExp is an alternate algorithm.
+// Returns the base value raised to the power of the count of this pixel.
+// Base should be 0.95 - 0.99... ish. Higher = more contrast.
+// Tends to make higher contrast images than the log method.
+func (d *LogDisplay) GetExp(x, y int, base float64) float64 {
+	value := d.values[x+y*d.width]
+	return 1.0 - math.Pow(base, value)
+}
+
+// GetCount returns the count for the current pixel
+func (d *LogDisplay) GetCount(x, y int) float64 {
+	return d.values[x+y*d.width]
 }

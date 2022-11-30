@@ -170,6 +170,26 @@ func (s *Surface) GetHeight() int {
 	return int(C.cairo_image_surface_get_height(s.surface))
 }
 
+// GetWidthF returns the width of the surface as a float64.
+func (s *Surface) GetWidthF() float64 {
+	return float64(s.GetWidth())
+}
+
+// GetHeightF returns the height of the surface as a float64.
+func (s *Surface) GetHeightF() float64 {
+	return float64(s.GetHeight())
+}
+
+// Size returns the width and height of the surface.
+func (s *Surface) Size() (int, int) {
+	return s.GetWidth(), s.GetHeight()
+}
+
+// SizeF returns the width and height of the surface.
+func (s *Surface) SizeF() (float64, float64) {
+	return s.GetWidthF(), s.GetHeightF()
+}
+
 // GetStride returns the stride of the surface.
 func (s *Surface) GetStride() int {
 	return int(C.cairo_image_surface_get_stride(s.surface))
