@@ -218,13 +218,16 @@ func (c *Context) Grid(x, y, w, h, xres, yres float64) {
 ////////////////////
 
 // DrawAxes draws a vertical and horizontal line for each axis at the origin.
-func (c *Context) DrawAxes() {
+func (c *Context) DrawAxes(lineWidth float64) {
+	origLineWidth := c.GetLineWidth()
+	c.SetLineWidth(lineWidth)
 	w, h := c.Size()
 	c.MoveTo(0, -h)
 	c.LineTo(0, h)
 	c.MoveTo(-w, 0)
 	c.LineTo(w, 0)
 	c.Stroke()
+	c.SetLineWidth(origLineWidth)
 }
 
 // DrawOrigin draws a "plus" mark at the origin, with the given size.
@@ -621,4 +624,23 @@ func (c *Context) StrokeText(text string, x, y float64) {
 	c.ShowText(text)
 	c.Stroke()
 	c.Restore()
+}
+
+////////////////////
+// Triangle
+////////////////////
+
+// Triangle draws a triangle.
+func (c *Context) Triangle(t *geom.Triangle) {
+	c.Path(t.Points())
+}
+
+// StrokeTriangle strokes a triangle.
+func (c *Context) StrokeTriangle(t *geom.Triangle) {
+	c.StrokePath(t.Points(), true)
+}
+
+// FillTriangle fills a triangle.
+func (c *Context) FillTriangle(t *geom.Triangle) {
+	c.FillPath(t.Points())
 }
