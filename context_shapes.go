@@ -95,6 +95,18 @@ func (c *Context) StrokeCircle(x, y, r float64) {
 	c.Stroke()
 }
 
+// FillCircleObject draws a circle and fills it.
+func (c *Context) FillCircleObject(circle *geom.Circle) {
+	c.Circle(circle.X, circle.Y, circle.Radius)
+	c.Fill()
+}
+
+// StrokeCircleObject draws a circle and strokes it.
+func (c *Context) StrokeCircleObject(circle *geom.Circle) {
+	c.Circle(circle.X, circle.Y, circle.Radius)
+	c.Stroke()
+}
+
 ////////////////////
 // CurveTo
 ////////////////////
@@ -334,6 +346,16 @@ func (c *Context) StrokeLine(x0, y0, x1, y1 float64) {
 	c.Stroke()
 }
 
+// StrokeLineObject strokes a line between two points.
+func (c *Context) StrokeLineObject(line *geom.Line) {
+	c.LineThrough(line.X0, line.Y0, line.X1, line.Y1, c.Width+c.Height)
+}
+
+// StrokeSegmentObject strokes a line segment between two points.
+func (c *Context) StrokeSegmentObject(seg *geom.Segment) {
+	c.StrokeLine(seg.X0, seg.Y0, seg.X1, seg.Y1)
+}
+
 // LineThrough strokes a line that extends a certain distance beyond two points.
 func (c *Context) LineThrough(x0, y0, x1, y1, overlap float64) {
 	c.Save()
@@ -514,6 +536,18 @@ func (c *Context) StrokeRectangle(x, y, w, h float64) {
 	c.Stroke()
 }
 
+// StrokeRectangleObject draws and strokes a geom.Rect
+func (c *Context) StrokeRectangleObject(rect *geom.Rect) {
+	c.Rectangle(rect.X, rect.Y, rect.W, rect.H)
+	c.Stroke()
+}
+
+// FillRectangleObject draws and fills a geom.Rect
+func (c *Context) FillRectangleObject(rect *geom.Rect) {
+	c.Rectangle(rect.X, rect.Y, rect.W, rect.H)
+	c.Fill()
+}
+
 ////////////////////
 // RIGHT TRIANGLE
 ////////////////////
@@ -568,6 +602,31 @@ func (c *Context) StrokeRoundRectangle(x, y, w, h, r float64) {
 // FillRoundRectangle draws a filled, rounded rectangle.
 func (c *Context) FillRoundRectangle(x, y, w, h, r float64) {
 	c.RoundRectangle(x, y, w, h, r)
+	c.Fill()
+}
+
+// Squircle draws a sort of rounded square. Higher p makes it more square. A p of 2 = a circle.
+func (c *Context) Squircle(x, y, radius, p float64) {
+	res := 4 / radius
+	for t := 0.0; t < math.Pi*2; t += res {
+		sin := math.Sin(t)
+		cos := math.Cos(t)
+
+		r := radius / math.Pow(math.Pow(math.Abs(cos), p)+math.Pow(math.Abs(sin), p), 1/p)
+		c.LineTo(x+cos*r, y+sin*r)
+	}
+	c.ClosePath()
+}
+
+// StrokeSquircle draws a squircle and strokes it.
+func (c *Context) StrokeSquircle(x, y, radius, p float64) {
+	c.Squircle(x, y, radius, p)
+	c.Stroke()
+}
+
+// FillSquircle draws a squircle and fills it.
+func (c *Context) FillSquircle(x, y, radius, p float64) {
+	c.Squircle(x, y, radius, p)
 	c.Fill()
 }
 
@@ -630,17 +689,12 @@ func (c *Context) StrokeText(text string, x, y float64) {
 // Triangle
 ////////////////////
 
-// Triangle draws a triangle.
-func (c *Context) Triangle(t *geom.Triangle) {
-	c.Path(t.Points())
-}
-
-// StrokeTriangle strokes a triangle.
-func (c *Context) StrokeTriangle(t *geom.Triangle) {
+// StrokeTriangleObject strokes a triangle.
+func (c *Context) StrokeTriangleObject(t *geom.Triangle) {
 	c.StrokePath(t.Points(), true)
 }
 
-// FillTriangle fills a triangle.
-func (c *Context) FillTriangle(t *geom.Triangle) {
+// FillTriangleObject fills a triangle.
+func (c *Context) FillTriangleObject(t *geom.Triangle) {
 	c.FillPath(t.Points())
 }

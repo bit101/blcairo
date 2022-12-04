@@ -41,7 +41,7 @@ func renderFrame(context *cairo.Context, width, height, percent float64) {
 	context.BlackOnWhite()
 	context.Save()
 	context.TranslateCenter()
-	context.DrawAxes()
+	context.DrawAxes(0.25)
 	r := blmath.LerpSin(percent, 0, width/2)
 	context.FillCircle(0, 0, r)
 	context.Restore()
