@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	renderTarget := target.SpriteSheet
+	renderTarget := target.Image
 
 	switch renderTarget {
 	case target.Image:

@@ -246,19 +246,20 @@ func (c *Context) CurveTo(x1, y1, x2, y2, x3, y3 float64) {
 }
 
 // Arc draws and arc with the specified parameters.
-func (c *Context) Arc(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc(c.context,
-		C.double(xc), C.double(yc),
-		C.double(radius),
-		C.double(angle1), C.double(angle2))
-}
-
-// ArcNegative draws a negative arc to the specified parameters.
-func (c *Context) ArcNegative(xc, yc, radius, angle1, angle2 float64) {
-	C.cairo_arc_negative(c.context,
-		C.double(xc), C.double(yc),
-		C.double(radius),
-		C.double(angle1), C.double(angle2))
+func (c *Context) Arc(xc, yc, radius, angle1, angle2 float64, antiClockwise bool) {
+	if antiClockwise {
+		C.cairo_arc_negative(c.context,
+			C.double(xc), C.double(yc),
+			C.double(radius),
+			C.double(angle1), C.double(angle2),
+		)
+	} else {
+		C.cairo_arc(c.context,
+			C.double(xc), C.double(yc),
+			C.double(radius),
+			C.double(angle1), C.double(angle2),
+		)
+	}
 }
 
 // RelMoveTo moves to coordinates relative to the current point.

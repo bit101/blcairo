@@ -10,19 +10,68 @@ import (
 )
 
 ////////////////////
-// ARC
+// ARC, ETC.
 ////////////////////
 
 // FillArc draws an arc and fills it.
-func (c *Context) FillArc(x, y, r, a1, a2 float64) {
-	c.Arc(x, y, r, a1, a2)
+func (c *Context) FillArc(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.Arc(x, y, r, a1, a2, anticlockwise)
 	c.Fill()
 }
 
 // StrokeArc draws an arc and strokes it.
-func (c *Context) StrokeArc(x, y, r, a1, a2 float64) {
-	c.Arc(x, y, r, a1, a2)
+func (c *Context) StrokeArc(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.Arc(x, y, r, a1, a2, anticlockwise)
 	c.Stroke()
+}
+
+// Chord draws a line that represents a chord of the given circle.
+func (c *Context) Chord(x, y, r, a1, a2 float64) {
+	c.MoveTo(x+math.Cos(a1)*r, y+math.Sin(a1)*r)
+	c.LineTo(x+math.Cos(a2)*r, y+math.Sin(a2)*r)
+}
+
+// StrokeChord draws and strokes a chord.
+func (c *Context) StrokeChord(x, y, r, a1, a2 float64) {
+	c.Chord(x, y, r, a1, a2)
+	c.Stroke()
+}
+
+// CircleSegment draws a segment of the given circle.
+func (c *Context) CircleSegment(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.Arc(x, y, r, a1, a2, anticlockwise)
+	c.ClosePath()
+}
+
+// StrokeCircleSegment draws and strokes a segment of the given circle.
+func (c Context) StrokeCircleSegment(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.CircleSegment(x, y, r, a1, a2, anticlockwise)
+	c.Stroke()
+}
+
+// FillCircleSegment draws and strokes a segment of the given circle.
+func (c Context) FillCircleSegment(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.CircleSegment(x, y, r, a1, a2, anticlockwise)
+	c.Fill()
+}
+
+// CircleSector draws a segment of the given circle.
+func (c *Context) CircleSector(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.MoveTo(x, y)
+	c.Arc(x, y, r, a1, a2, anticlockwise)
+	c.ClosePath()
+}
+
+// StrokeCircleSector draws and strokes a segment of the given circle.
+func (c Context) StrokeCircleSector(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.CircleSector(x, y, r, a1, a2, anticlockwise)
+	c.Stroke()
+}
+
+// FillCircleSector draws and strokes a segment of the given circle.
+func (c Context) FillCircleSector(x, y, r, a1, a2 float64, anticlockwise bool) {
+	c.CircleSector(x, y, r, a1, a2, anticlockwise)
+	c.Fill()
 }
 
 ////////////////////
@@ -80,7 +129,7 @@ func (c *Context) StrokeDoubleArrow(x0, y0, x1, y1, pointSize float64) {
 
 // Circle draws a circle
 func (c *Context) Circle(x, y, r float64) {
-	c.Arc(x, y, r, 0.0, blmath.TwoPi)
+	c.Arc(x, y, r, 0.0, blmath.TwoPi, false)
 }
 
 // FillCircle draws a circle and fills it.
@@ -105,6 +154,20 @@ func (c *Context) FillCircleObject(circle *geom.Circle) {
 func (c *Context) StrokeCircleObject(circle *geom.Circle) {
 	c.Circle(circle.X, circle.Y, circle.Radius)
 	c.Stroke()
+}
+
+// StrokeCircles strokes each circle object in a list.
+func (c *Context) StrokeCircles(circles []*geom.Circle) {
+	for _, circle := range circles {
+		c.StrokeCircleObject(circle)
+	}
+}
+
+// FillCircles fills each circle object in a list.
+func (c *Context) FillCircles(circles []*geom.Circle) {
+	for _, circle := range circles {
+		c.FillCircleObject(circle)
+	}
 }
 
 ////////////////////
@@ -584,13 +647,13 @@ func (c *Context) FillRightTriangle(x, y, w, h, r float64) {
 func (c *Context) RoundRectangle(x, y, w, h, r float64) {
 	c.MoveTo(x+r, y)
 	c.LineTo(x+w-r, y)
-	c.Arc(x+w-r, y+r, r, -blmath.HalfPi, 0.0)
+	c.Arc(x+w-r, y+r, r, -blmath.HalfPi, 0.0, false)
 	c.LineTo(x+w, y+h-r)
-	c.Arc(x+w-r, y+h-r, r, 0.0, blmath.HalfPi)
+	c.Arc(x+w-r, y+h-r, r, 0.0, blmath.HalfPi, false)
 	c.LineTo(x+r, y+h)
-	c.Arc(x+r, y+h-r, r, blmath.HalfPi, math.Pi)
+	c.Arc(x+r, y+h-r, r, blmath.HalfPi, math.Pi, false)
 	c.LineTo(x, y+r)
-	c.Arc(x+r, y+r, r, math.Pi, -blmath.HalfPi)
+	c.Arc(x+r, y+r, r, math.Pi, -blmath.HalfPi, false)
 }
 
 // StrokeRoundRectangle draws a stroked, rounded rectangle.

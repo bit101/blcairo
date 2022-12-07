@@ -2,3 +2,7 @@ github.com/bit101/bitlib v0.2.4 h1:3Gcc1zvqTMd6JAAivB7s/oNzqej0g0lCkKuWddBJ9bA=
 github.com/bit101/bitlib v0.2.4/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
 github.com/bit101/bitlib v0.2.6 h1:N/ECH6tyjN4mwgo8xikmbhQtQeQ+vmGzeATo1dhxZMQ=
 github.com/bit101/bitlib v0.2.6/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
+github.com/bit101/bitlib v0.2.7 h1:iNm2217HRxkAH+TMdbrCrxdyB6dGpLdjv68ZkbPsDcA=
+github.com/bit101/bitlib v0.2.7/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
+github.com/bit101/bitlib v0.2.8 h1:fBBNsq2PvnB2Xgd1y3AkoatotoC2NknLc+8ZdfsEBak=
+github.com/bit101/bitlib v0.2.8/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
