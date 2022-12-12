@@ -50,13 +50,14 @@ func FfmpegToGIF(folder, outFileName string, fps float64) {
 	}
 }
 
-// ConvertToYoutube converts a folder of pngs into a Youtube compatible mp4 video file. Requires ffmpeg.
-func ConvertToYoutube(folder, outFileName string, fps int) {
+// ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
+func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	os.RemoveAll(outFileName)
 	path := folder + "/frame_%04d.png"
 	fpsArg := fmt.Sprintf("%d", fps)
+	sizeArg := fmt.Sprintf("%dx%d", w, h)
 
-	cmd := exec.Command("ffmpeg", "-framerate", fpsArg, "-i", path, "-s:v", "1280x720",
+	cmd := exec.Command("ffmpeg", "-framerate", fpsArg, "-i", path, "-s:v", sizeArg,
 		"-c:v", "libx264", "-profile:v", "high", "-crf", "20",
 		"-pix_fmt", "yuv420p", outFileName)
 	err := cmd.Run()

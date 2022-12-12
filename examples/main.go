@@ -31,7 +31,7 @@ func main() {
 
 	case target.Video:
 		render.Frames(1280, 800, 60, "frames", renderFrame)
-		render.ConvertToYoutube("frames", "out.mp4", 60)
+		render.ConvertToVideo("frames", "out.mp4", 1280, 800, 60)
 		render.VLC("out.mp4", true)
 		break
 	}
