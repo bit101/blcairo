@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	renderTarget := target.Image
+	renderTarget := target.Video
 
 	switch renderTarget {
 	case target.Image:
@@ -30,9 +30,9 @@ func main() {
 		break
 
 	case target.Video:
-		render.Frames(1280, 800, 60, "frames", renderFrame)
-		render.ConvertToVideo("frames", "out.mp4", 1280, 800, 60)
-		render.VLC("out.mp4", true)
+		render.Frames(400, 400, 60, "frames", renderFrame)
+		render.ConvertToVideo("frames", "out.mp4", 400, 400, 30)
+		render.MPV("out.mp4", true)
 		break
 	}
 }

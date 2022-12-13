@@ -91,6 +91,21 @@ func VLC(fileName string, loop bool) {
 	}
 }
 
+// MPV launches mpv to play a video
+func MPV(fileName string, loop bool) {
+	loopArg := ""
+	loopTimes := ""
+	if loop {
+		loopArg = "--loop"
+		loopTimes = "inf"
+	}
+	cmd := exec.Command("mpv", loopArg, loopTimes, fileName)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // ParentDir returns the immediated directory name of the current working directory.
 func ParentDir() string {
 	wd, err := os.Getwd()
