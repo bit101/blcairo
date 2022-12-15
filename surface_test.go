@@ -40,6 +40,18 @@ func TestSurfaceCreation(t *testing.T) {
 	}
 }
 
+func TestSurfaceCreationGeneric(t *testing.T) {
+	surface := NewSurface(800.783, 800.999)
+	width, height := surface.GetWidth(), surface.GetHeight()
+	if width != 800 {
+		t.Errorf("Expected width %d, got %d\n", 800, width)
+	}
+	if height != 800 {
+		t.Errorf("Expected height %d, got %d\n", 800, height)
+	}
+
+}
+
 func TestSurfaceFromPng(t *testing.T) {
 	surface, err := NewSurfaceFromPNG("testdata/gopher.png")
 	if err != nil {

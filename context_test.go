@@ -390,7 +390,7 @@ func TestCurveTo(t *testing.T) {
 func TestArcs(t *testing.T) {
 	surface, context := createContext()
 	context.SetLineWidth(20)
-	context.Arc(200, 200, 100, 0, math.Pi)
+	context.Arc(200, 200, 100, 0, math.Pi, false)
 	context.Stroke()
 
 	data := getData(surface, t)
@@ -411,7 +411,7 @@ func TestArcs(t *testing.T) {
 		t.Errorf("Expected pixel %d, %d to have alpha 0, got %d\n", x, y, alpha)
 	}
 
-	context.ArcNegative(200, 200, 100, 0, math.Pi)
+	context.Arc(200, 200, 100, 0, math.Pi, true)
 	context.Stroke()
 
 	data = getData(surface, t)

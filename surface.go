@@ -19,9 +19,11 @@ type Surface struct {
 }
 
 // NewSurface creates a new cairo surface.
-func NewSurface(width, height int) *Surface {
+func NewSurface[T int | float64](width, height T) *Surface {
+	w := int(width)
+	h := int(height)
 	return &Surface{
-		C.cairo_image_surface_create(C.cairo_format_t(FormatARGB32), C.int(width), C.int(height)),
+		C.cairo_image_surface_create(C.cairo_format_t(FormatARGB32), C.int(w), C.int(h)),
 	}
 }
 
