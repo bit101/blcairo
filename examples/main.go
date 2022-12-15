@@ -42,8 +42,11 @@ func renderFrame(context *cairo.Context, width, height, percent float64) {
 	context.Save()
 	context.TranslateCenter()
 	context.DrawAxes(0.25)
-	r := blmath.LerpSin(percent, 0, width/2)
-	context.FillCircle(0, 0, r)
+	r := blmath.LerpSin(percent, 50, width/2)
+	// context.FillCircle(0, 0, r)
+	sphere := cairo.NewSphere(0, 0, r, 1, 0, 0)
+	sphere.SetShadowColor(0.2, 0, 0)
+	sphere.Draw(context)
 	context.Restore()
 }
 
