@@ -11,6 +11,8 @@ import "C"
 import (
 	"errors"
 	"unsafe"
+
+	"github.com/bit101/bitlib/geom"
 )
 
 // Context represents a cairo context
@@ -233,6 +235,11 @@ func (c *Context) MoveTo(x, y float64) {
 	C.cairo_move_to(c.context, C.double(x), C.double(y))
 }
 
+// MoveToPoint moves to the specified point.
+func (c *Context) MoveToPoint(p *geom.Point) {
+	c.MoveTo(p.X, p.Y)
+}
+
 // NewSubPath creates a new sub drawing path.
 func (c *Context) NewSubPath() {
 	C.cairo_new_sub_path(c.context)
@@ -241,6 +248,11 @@ func (c *Context) NewSubPath() {
 // LineTo draws a line to the specified point.
 func (c *Context) LineTo(x, y float64) {
 	C.cairo_line_to(c.context, C.double(x), C.double(y))
+}
+
+// LineToPoint moves to the specified point.
+func (c *Context) LineToPoint(p *geom.Point) {
+	c.LineTo(p.X, p.Y)
 }
 
 // CurveTo draws a Bezier curve through the specified points.
