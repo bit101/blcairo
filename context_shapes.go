@@ -2,6 +2,7 @@
 package cairo
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/bit101/bitlib/blmath"
@@ -202,6 +203,20 @@ func (c *Context) StrokeQuadraticCurveTo(x0, y0, x1, y1 float64) {
 	c.Stroke()
 }
 
+// QuadraticCurveThrough draws a quad curve that goes through the control point.
+func (c *Context) QuadraticCurveThrough(x0, y0, x1, y1 float64) {
+	px, py := c.GetCurrentPoint()
+	xc := x0*2 - px/2 - x1/2
+	yc := y0*2 - py/2 - y1/2
+	c.QuadraticCurveTo(xc, yc, x1, y1)
+}
+
+// StrokeQuadraticCurveThrough draws and strokes a quad curve that goes through the control point.
+func (c *Context) StrokeQuadraticCurveThrough(x0, y0, x1, y1 float64) {
+	c.QuadraticCurveThrough(x0, y0, x1, y1)
+	c.Stroke()
+}
+
 ////////////////////
 // ELLIPSE
 ////////////////////
@@ -286,6 +301,15 @@ func (c *Context) Grid(x, y, w, h, xres, yres float64) {
 		yy += yres
 	}
 	c.Stroke()
+}
+
+// GridFull draws a square grid with the given resolution and line width across the whole canvas.
+func (c *Context) GridFull(res, lineWidth float64) {
+	c.Save()
+	c.SetMatrix(*NewMatrix())
+	c.SetLineWidth(lineWidth)
+	c.Grid(0, 0, c.Width, c.Height, res, res)
+	c.Restore()
 }
 
 ////////////////////
@@ -535,6 +559,35 @@ func (c *Context) FillPoint(x, y, r float64) {
 func (c *Context) Points(points []*geom.Point, radius float64) {
 	for _, point := range points {
 		c.FillPoint(point.X, point.Y, radius)
+	}
+}
+
+// LabelPoints draws a single char near each of a list of points, incrementing the first char by one each time.
+// Makes no correction for chars higher than 0-9, a-z or A-Z at this point
+func (c *Context) LabelPoints(points []*geom.Point, numeric bool) {
+
+	if numeric {
+		num := 0
+		for _, p := range points {
+			label := fmt.Sprintf("%d", num)
+			c.FillText(label, p.X+5, p.Y-5)
+			num++
+		}
+	} else {
+		char := 'A'
+		count := 0
+		for _, p := range points {
+			label := string(char)
+			if count > 0 {
+				label = fmt.Sprintf("%c%d", char, count)
+			}
+			c.FillText(label, p.X+5, p.Y-5)
+			char++
+			if char > 'Z' {
+				char = 'A'
+				count++
+			}
+		}
 	}
 }
 

@@ -156,6 +156,12 @@ func (c *Context) SetDash(dashes []float64, numDashes int, offset float64) {
 	C.cairo_set_dash(c.context, dashesp, C.int(numDashes), C.double(offset))
 }
 
+// SimpleDash sets the dash pattern to be used when drawing lines.
+func (c *Context) SimpleDash(on, off float64) {
+	dashes := []float64{on, off}
+	c.SetDash(dashes, 2, 0)
+}
+
 // SetMiterLimit sets the sharpness of the corner in line joins.
 func (c *Context) SetMiterLimit(limit float64) {
 	C.cairo_set_miter_limit(c.context, C.double(limit))
