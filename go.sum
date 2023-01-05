@@ -14,3 +14,5 @@ github.com/bit101/bitlib v0.3.1 h1:FQ1xTfKCx3uKXlCaiGl1nrF3fSJM4QRxIQTkP/xXftA=
 github.com/bit101/bitlib v0.3.1/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
 github.com/bit101/bitlib v0.3.2 h1:0z7njmTKUGL7H5kMEUgQ0UPbDlY+GsBDMPC7+QBNCrU=
 github.com/bit101/bitlib v0.3.2/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
+github.com/bit101/bitlib v0.3.3 h1:CAttFovAZbQ4ogYJzotBNvs7r8BaKyIrH3Cpv9tcbDA=
+github.com/bit101/bitlib v0.3.3/go.mod h1:fPFTy1HF9ylfkLI9vvSECAMyJeBTkoWepDyBdnLTMh8=
