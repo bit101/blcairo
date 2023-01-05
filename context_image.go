@@ -9,7 +9,7 @@ import (
 )
 
 // SampleColors returns a pallet of colors from an external image.
-func SampleColors(image string, count int) []blcolor.Color {
+func SampleColors(image string, count int) *blcolor.Palette {
 	surface, err := NewSurfaceFromPNG(image)
 	if err != nil {
 		log.Fatal(err)
@@ -18,16 +18,15 @@ func SampleColors(image string, count int) []blcolor.Color {
 	if err != nil {
 		log.Fatal(err)
 	}
-	colors := []blcolor.Color{}
-	for len(colors) < count {
+	palette := blcolor.NewPalette()
+	for i := 0; i < count; i++ {
 		x := random.IntRange(0, surface.GetWidth())
 		y := random.IntRange(0, surface.GetHeight())
 		r, g, b, _ := surface.GetPixel(data, x, y)
 		red := float64(r) / 255
 		green := float64(g) / 255
 		blue := float64(b) / 255
-		c := blcolor.RGB(red, green, blue)
-		colors = append(colors, c)
+		palette.AddRGB(red, green, blue)
 	}
-	return colors
+	return palette
 }
