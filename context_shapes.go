@@ -172,6 +172,19 @@ func (c *Context) FillCircles(circles []*geom.Circle) {
 }
 
 ////////////////////
+// Crosshair
+////////////////////
+
+// Crosshair draws a crosshair a the specified location
+func (c *Context) Crosshair(x, y, size float64) {
+	c.MoveTo(x-size, y)
+	c.LineTo(x+size, y)
+	c.MoveTo(x, y-size)
+	c.LineTo(x, y+size)
+	c.Stroke()
+}
+
+////////////////////
 // CurveTo
 ////////////////////
 

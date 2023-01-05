@@ -22,6 +22,12 @@ func (c *Context) WhiteOnBlack() {
 	c.SetSourceWhite()
 }
 
+// Blueprint clears the image to a blueprint shade and sets the drawing color to white.
+func (c *Context) Blueprint() {
+	c.ClearRGB(0.0, 0.0784, 0.5176)
+	c.SetSourceWhite()
+}
+
 ////////////////////
 // CLEAR
 ////////////////////

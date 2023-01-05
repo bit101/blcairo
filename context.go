@@ -18,6 +18,7 @@ import (
 // Context represents a cairo context
 type Context struct {
 	context       *C.cairo_t
+	Surface       *Surface
 	Width, Height float64
 }
 
@@ -25,6 +26,7 @@ type Context struct {
 func NewContext(surface *Surface) *Context {
 	return &Context{
 		C.cairo_create(surface.surface),
+		surface,
 		float64(surface.GetWidth()),
 		float64(surface.GetHeight()),
 	}
@@ -162,6 +164,11 @@ func (c *Context) SetDash(dashes []float64, numDashes int, offset float64) {
 func (c *Context) SimpleDash(on, off float64) {
 	dashes := []float64{on, off}
 	c.SetDash(dashes, 2, 0)
+}
+
+// DisableDash disables drawing dashed lines.
+func (c *Context) DisableDash() {
+	c.SetDash([]float64{0}, 0, 0)
 }
 
 // SetMiterLimit sets the sharpness of the corner in line joins.
