@@ -352,6 +352,23 @@ func (c *Context) DrawOrigin(size float64) {
 }
 
 ////////////////////
+// GUILLOCHE
+////////////////////
+
+// Guillloche draws a Guillloche pattern.
+func (c *Context) Guillloche(x, y, innerRadius, innerAmp, innerCycles, innerRotation, outerRadius, outerAmp, outerCycles, outerRotation, nodes, div float64) {
+	for t := 0.0; t < blmath.Tau*div; t += 0.01 {
+		r0 := innerRadius + math.Sin(t*innerCycles+innerRotation)*innerAmp
+		r1 := outerRadius + math.Sin(t*outerCycles+outerRotation)*outerAmp
+		rng := (r1 - r0) * 0.5
+		mid := r0 + rng
+		radius := mid + math.Sin(t*nodes/div)*rng
+		c.LineTo(x+math.Cos(t)*radius, y+math.Sin(t)*radius)
+	}
+	c.Stroke()
+}
+
+////////////////////
 // HEART
 ////////////////////
 
