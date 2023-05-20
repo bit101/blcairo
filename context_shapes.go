@@ -751,28 +751,81 @@ func (c *Context) FillRoundRectangle(x, y, w, h, r float64) {
 	c.Fill()
 }
 
-// Squircle draws a sort of rounded square. Higher p makes it more square. A p of 2 = a circle.
-func (c *Context) Squircle(x, y, radius, p float64) {
-	res := 4 / radius
-	for t := 0.0; t < math.Pi*2; t += res {
-		sin := math.Sin(t)
-		cos := math.Cos(t)
+// sign is a helper function to determine the sign of a value.
+func sign(v float64) float64 {
+	if v < 0 {
+		return -1.0
+	}
+	if v > 0 {
+		return 1.0
+	}
+	return 0
+}
 
-		r := radius / math.Pow(math.Pow(math.Abs(cos), p)+math.Pow(math.Abs(sin), p), 1/p)
-		c.LineTo(x+cos*r, y+sin*r)
+// Superellipse draws a rounded rectangle with a superellipse formula.
+// A p of 1 makes a diamond. A p of 2 makes an ellipse. Higher p's get closer to square corners.
+// This shape is drawn from the center of xc, yc.
+func (c *Context) Superellipse(xc, yc, rx, ry, p float64) {
+	for t := 0.0; t < blmath.Tau; t += 0.01 {
+		cos := math.Cos(t)
+		sin := math.Sin(t)
+
+		x := math.Pow(math.Abs(cos), 2.0/p) * rx * sign(cos)
+		y := math.Pow(math.Abs(sin), 2.0/p) * ry * sign(sin)
+		c.LineTo(xc+x, yc+y)
 	}
 	c.ClosePath()
 }
 
-// StrokeSquircle draws a squircle and strokes it.
-func (c *Context) StrokeSquircle(x, y, radius, p float64) {
-	c.Squircle(x, y, radius, p)
+// StrokeSuperellipse draws and strokes a superellipse.
+func (c *Context) StrokeSuperellipse(xc, yc, w, h, p float64) {
+	c.Superellipse(xc, yc, w, h, p)
 	c.Stroke()
 }
 
+// FillSuperellipse draws and fills a superellipse.
+func (c *Context) FillSuperellipse(xc, yc, w, h, p float64) {
+	c.Superellipse(xc, yc, w, h, p)
+	c.Fill()
+}
+
+// Squircle draws a blend of a circle and square - a rounded square. It is a superellipse with a p of 4.
+// This shape is drawn from the center of xc, yc.
+func (c *Context) Squircle(xc, yc, radius float64) {
+	c.Superellipse(xc, yc, radius, radius, 4)
+}
+
+// StrokeSquircle draws a squircle and strokes it.
+func (c *Context) StrokeSquircle(xc, yc, radius float64) {
+	c.StrokeSuperellipse(xc, yc, radius, radius, 4)
+}
+
 // FillSquircle draws a squircle and fills it.
-func (c *Context) FillSquircle(x, y, radius, p float64) {
-	c.Squircle(x, y, radius, p)
+func (c *Context) FillSquircle(xc, yc, radius float64) {
+	c.FillSuperellipse(xc, yc, radius, radius, 4)
+}
+
+// Superformula draws a superformula shape.
+func (c *Context) Superformula(x, y, radius, symmetry, n1, n2, n3 float64) {
+	for t := 0.0; t < blmath.Tau; t += 0.01 {
+		angle := symmetry * t / 4.0
+		term1 := math.Pow(math.Abs(math.Cos(angle)), n2)
+		term2 := math.Pow(math.Abs(math.Sin(angle)), n3)
+		r := math.Pow(term1+term2, -1/n1) * radius
+		c.LineTo(x+math.Cos(t)*r, y+math.Sin(t)*r)
+	}
+	c.ClosePath()
+}
+
+// StrokeSuperformula draws and strokes a superformula.
+func (c *Context) StrokeSuperformula(xc, yc, radius, symmetry, n1, n2, n3 float64) {
+	c.Superformula(xc, yc, radius, symmetry, n1, n2, n3)
+	c.Stroke()
+}
+
+// FillSuperformula draws and fills a superformula.
+func (c *Context) FillSuperformula(xc, yc, radius, symmetry, n1, n2, n3 float64) {
+	c.Superformula(xc, yc, radius, symmetry, n1, n2, n3)
 	c.Fill()
 }
 

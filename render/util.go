@@ -66,6 +66,23 @@ func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	}
 }
 
+// MixAV mixes an audio and video file.
+func MixAV(videoFileName, audioFileName, outFileName string) {
+	cmd := exec.Command(
+		"ffmpeg", "-y",
+		"-i", videoFileName,
+		"-i", audioFileName,
+		"-c", "copy",
+		"-map", "0:v:0",
+		"-map", "1:a:0",
+		outFileName,
+	)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // ViewImage displays an image using installed image viewer.
 func ViewImage(imagePath string) {
 	cmd := exec.Command("eog", imagePath)
