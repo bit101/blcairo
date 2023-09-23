@@ -36,6 +36,25 @@ func Frames(width, height float64, numFrames int, frames string, frameFunc Frame
 	fmt.Println("\nDone!")
 }
 
+// CleanFrames cleans out frames.
+func CleanFrames(frames string) {
+	os.RemoveAll(frames)
+	os.MkdirAll(frames, 0755)
+}
+
+// FrameRange renders a range of frames
+func FrameRange(width, height float64, numFrames, start, end int, frames string, frameFunc FrameFunc) {
+	surface := cairo.NewSurface(int(width), int(height))
+	context := cairo.NewContext(surface)
+	for frame := start; frame <= end; frame++ {
+		percent := float64(frame) / float64(numFrames)
+		// fmt.Printf("\r%f", percent)
+		frameFunc(context, width, height, percent)
+		surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, frame))
+	}
+	fmt.Println("\nDone!")
+}
+
 // SpriteSheet sets up the rendering of a sprite sheet.
 func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames int, frameFunc FrameFunc) {
 	x := 0.0
