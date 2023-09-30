@@ -53,7 +53,7 @@ func FfmpegToGIF(folder, outFileName string, fps float64) {
 // ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
 func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	os.RemoveAll(outFileName)
-	path := folder + "/frame_%04d.bmp"
+	path := folder + "/frame_%04d.png"
 	fpsArg := fmt.Sprintf("%d", fps)
 	sizeArg := fmt.Sprintf("%dx%d", w, h)
 
