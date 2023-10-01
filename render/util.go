@@ -10,6 +10,16 @@ import (
 	"runtime"
 )
 
+var imageRenderType = "png"
+
+func UseBMP(value bool) {
+	if value {
+		imageRenderType = "bmp"
+	} else {
+		imageRenderType = "png"
+	}
+}
+
 // MakeGIF creates an animated gif with the given tool.
 func MakeGIF(tool, folder, outFileName string, fps float64) {
 	os.RemoveAll(outFileName)
@@ -24,7 +34,7 @@ func MakeGIF(tool, folder, outFileName string, fps float64) {
 // ConvertToGIF converts a folder of pngs into an animated gif using imagemagick convert.
 func ConvertToGIF(folder, outFileName string, fps float64) {
 	delay := fmt.Sprintf("%f", 1000.0/fps/10.0)
-	path := folder + "/*.png"
+	path := folder + "/*." + imageRenderType
 	cmd := exec.Command("convert", "-delay", delay, "-layers", "Optimize", path, outFileName)
 	err := cmd.Run()
 	if err != nil {
@@ -34,7 +44,7 @@ func ConvertToGIF(folder, outFileName string, fps float64) {
 
 // FfmpegToGIF converts a folder of pngs into an animated gif using ffmpeg.
 func FfmpegToGIF(folder, outFileName string, fps float64) {
-	path := folder + "/frame_%04d.png"
+	path := folder + "/frame_%04d." + imageRenderType
 	fpsArg := fmt.Sprintf("%d", int(fps))
 
 	paletteCmd := exec.Command("ffmpeg", "-y", "-i", path, "-vf", "palettegen", "palette.png")
@@ -53,7 +63,7 @@ func FfmpegToGIF(folder, outFileName string, fps float64) {
 // ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
 func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	os.RemoveAll(outFileName)
-	path := folder + "/frame_%04d.png"
+	path := folder + "/frame_%04d." + imageRenderType
 	fpsArg := fmt.Sprintf("%d", fps)
 	sizeArg := fmt.Sprintf("%dx%d", w, h)
 
