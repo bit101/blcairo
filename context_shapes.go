@@ -325,6 +325,29 @@ func (c *Context) GridFull(res, lineWidth float64) {
 	c.Restore()
 }
 
+// Checkerboard fills an area with a checkerboard pattern.
+func (c *Context) Checkerboard(x, y, w, h, resX, resY float64, topLeftFilled bool) {
+	c.Save()
+	c.Rectangle(x, y, w, h)
+	c.Clip()
+	offset := resX
+	if topLeftFilled {
+		offset = 0.0
+	}
+	for yy := y; yy < y+h; yy += resY {
+		for xx := x; xx < x+w; xx += resX * 2 {
+			c.FillRectangle(xx+offset, yy, resX, resY)
+		}
+		if offset == 0.0 {
+			offset = resX
+		} else {
+			offset = 0.0
+		}
+	}
+	c.ResetClip()
+	c.Restore()
+}
+
 ////////////////////
 // GUIDES
 ////////////////////
