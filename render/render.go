@@ -89,24 +89,48 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 
 func initProgress() {
 	ansi.ClearScreen()
-	ansi.SetScrollRegion(3, 1000)
-	ansi.MoveTo(0, 3)
+	ansi.SetScrollRegion(4, 1000)
+	ansi.MoveTo(0, 4)
 	startTime = time.Now()
 }
 
 func setProgress(percent float64) {
 	ansi.Save()
-	ansi.MoveTo(0, 0)
+	ansi.MoveTo(1, 1)
 	ansi.ClearLine()
-	fmt.Printf("Progress: %0.2f%%", percent*100)
+
+	count := 40.0
+	fmt.Print("[")
+	for i := 0.0; i < count; i++ {
+		if i/count >= percent {
+			fmt.Print(" ")
+		} else {
+			ansi.Print(ansi.BoldYellow, "#")
+		}
+	}
+	fmt.Print("]")
+	fmt.Printf(" %0.2f%%", percent*100)
+
+	endTime := time.Now()
+	seconds := int(endTime.Sub(startTime).Seconds() / percent * (1 - percent))
+	minutes := seconds / 60
+	seconds = seconds % 60
+
+	ansi.MoveTo(1, 2)
+	ansi.ClearLine()
+	if percent > 0 {
+		fmt.Printf("Estimated %d:%02d left", minutes, seconds)
+	}
 	ansi.Restore()
 }
 
 func setComplete() {
 	endTime := time.Now()
-	elapsed := endTime.Sub(startTime)
+	seconds := int(endTime.Sub(startTime).Seconds())
+	minutes := seconds / 60
+	seconds = seconds % 60
 	ansi.ClearScreen()
 	ansi.ResetScrollRegion()
 	fmt.Println("Frames render complete!")
-	fmt.Printf("Elapsed time: %.2f seconds.\n\n\n", elapsed.Seconds())
+	fmt.Printf("Elapsed time: %d:%02d.\n\n\n", minutes, seconds)
 }
