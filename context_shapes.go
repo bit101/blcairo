@@ -392,6 +392,75 @@ func (c *Context) Guillloche(x, y, innerRadius, innerAmp, innerCycles, innerRota
 }
 
 ////////////////////
+// Hatch
+////////////////////
+
+// FillHatchAlt fills an area with grid of alternating hatch patterns.
+func (c *Context) FillHatchAlt(x, y, w, h, size float64, count int, r0, r1, rrand, posRand float64) {
+	c.Save()
+	c.Translate(x, y)
+	c.Rectangle(0, 0, w, h)
+	c.Clip()
+	xres := w / size
+	yres := h / size
+	for x1 := 0.0; x1 < xres; x1++ {
+		for y1 := 0.0; y1 < yres; y1++ {
+			angle := r0
+			if math.Mod(x1, 2) == math.Mod(y1, 2) {
+				angle = r1
+			}
+			angle += random.FloatRange(-rrand, rrand)
+			c.Hatch(count, x1*size, y1*size, size, angle, posRand)
+		}
+	}
+	c.ResetClip()
+	c.Restore()
+}
+
+// Hatch fills a square with a hatch pattern.
+func (c *Context) Hatch(count int, x, y, size, rotation, rand float64) {
+	// x, y, size forms a square
+	// get a line that runs through the center of the square at the given rotation.
+	// this line will be perpendicular to the strokes we will create.
+	rotation = blmath.WrapTau(rotation)
+	cos := math.Cos(rotation - math.Pi/2)
+	sin := math.Sin(rotation - math.Pi/2)
+	cx := x + size/2
+	cy := y + size/2
+	cs := cos * size
+	ss := sin * size
+	line := geom.NewLine(cx-cs, cy-ss, cx+cs, cy+ss)
+
+	// calculate what portion of that line we will use to draw perpendicular strokes (w)
+	// and how far apart those strokes will be (space)
+	fcount := float64(count)
+	a := math.Mod(rotation, math.Pi/2) - math.Pi/4
+	w := math.Cos(a) * size * math.Sqrt2
+	space := w / fcount
+
+	for i := 0.0; i < fcount; i++ {
+		// find the points along the line where strokes will be drawn
+		n := (space-w)*0.5 + space*i
+		stroke := line.Perpendicular(geom.NewPoint(cx+cos*n, cy+sin*n))
+		// find where that stroke intersects the enclosing square
+		points := geom.LineOnRect(
+			stroke.X0, stroke.Y0, stroke.X1, stroke.Y1,
+			x, y, size, size,
+		)
+		// ensure it intersects in two points
+		if len(points) >= 2 {
+			// randomize those points and draw a line segment
+			p0 := points[0]
+			p1 := points[1]
+			c.MoveTo(p0.X+random.FloatRange(-rand, rand), p0.Y+random.FloatRange(-rand, rand))
+			c.LineTo(p1.X+random.FloatRange(-rand, rand), p1.Y+random.FloatRange(-rand, rand))
+		}
+	}
+	c.Stroke()
+
+}
+
+////////////////////
 // HEART
 ////////////////////
 
