@@ -81,6 +81,7 @@ func (c *Context) CircleSectorWithHeight(x0, y0, x1, y1, height float64) {
 	if err != nil {
 		c.MoveTo(x0, y0)
 		c.LineTo(x1, y1)
+		return
 	}
 	a0 := math.Atan2(y1-circle.Y, x1-circle.X)
 	a1 := math.Atan2(y0-circle.Y, x0-circle.X)
