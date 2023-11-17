@@ -815,6 +815,30 @@ func (c *Context) FillRectangleObject(rect *geom.Rect) {
 	c.Fill()
 }
 
+// ConcentricRects draws a series of concentric rectanges,
+// shringking in size by the spacing parameter,
+// each rotated by multiles of the rotation parameter.
+// The clip parameter clips the whole drawing to the size of the original rect, if true.
+func (c *Context) ConcentricRects(x, y, w, h, spacing, rotation float64, clip bool) {
+	if clip {
+		c.Rectangle(x, y, w, h)
+		c.Clip()
+	}
+	c.Save()
+	c.Translate(x+w/2, y+h/2)
+	for w > 0 && h > 0 {
+		c.Rectangle(-w/2, -h/2, w, h)
+		w -= spacing * 2
+		h -= spacing * 2
+		c.Rotate(rotation)
+	}
+	c.Stroke()
+	c.Restore()
+	if clip {
+		c.ResetClip()
+	}
+}
+
 ////////////////////
 // RIGHT TRIANGLE
 ////////////////////
