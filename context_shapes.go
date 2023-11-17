@@ -1007,6 +1007,38 @@ func (c *Context) FillStar(x, y, r0, r1 float64, points int, rotation float64) {
 	c.Fill()
 }
 
+// //////////////////
+// TearDrop
+// //////////////////
+
+// TearDrop draws a teardrop shape.
+func (c *Context) TearDrop(x, y, w, h float64) {
+	c.Save()
+	c.Translate(x, y)
+	res := 5 / w
+	w *= 0.38
+	h *= -0.5
+	for t := 0.0; t < blmath.Tau; t += res {
+		x := w * (1 - math.Sin(t)) * math.Cos(t)
+		y := h * (math.Sin(t) - 1)
+		c.LineTo(x, y)
+	}
+	c.ClosePath()
+	c.Restore()
+}
+
+// StrokeTearDrop strokes a teardrop shape.
+func (c *Context) StrokeTearDrop(x, y, w, h float64) {
+	c.TearDrop(x, y, w, h)
+	c.Stroke()
+}
+
+// FillTearDrop fills a teardrop shape.
+func (c *Context) FillTearDrop(x, y, w, h float64) {
+	c.TearDrop(x, y, w, h)
+	c.Fill()
+}
+
 ////////////////////
 // Text
 ////////////////////
