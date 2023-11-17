@@ -76,24 +76,18 @@ func (c *Context) FillCircleSector(x, y, r, a1, a2 float64, anticlockwise bool) 
 }
 
 // CircleSectorWithHeight draws an arc of the given height connecting two points
-func (c *Context) CircleSectorWithHeight(x0, y0, x1, y1, h float64) {
-	if math.Abs(h) < 0.001 {
+func (c *Context) CircleSectorWithHeight(x0, y0, x1, y1, height float64) {
+	circle, err := geom.CircleThroughPointsWithArcHeight(x0, y0, x1, y1, height)
+	if err != nil {
 		c.MoveTo(x0, y0)
 		c.LineTo(x1, y1)
-		return
 	}
-	l := math.Hypot(x1-x0, y1-y0)
-	r := (4*h*h + l*l) / (8 * h)
-	a := math.Atan2(y1-y0, x1-x0) + math.Pi/2
-	midx, midy := (x0+x1)/2, (y0+y1)/2
-	x := midx + math.Cos(a)*(r-h)
-	y := midy + math.Sin(a)*(r-h)
-	a0 := math.Atan2(y1-y, x1-x)
-	a1 := math.Atan2(y0-y, x0-x)
-	if r > 0 {
-		c.Arc(x, y, r, a1, a0, false)
+	a0 := math.Atan2(y1-circle.Y, x1-circle.X)
+	a1 := math.Atan2(y0-circle.Y, x0-circle.X)
+	if circle.Radius > 0 {
+		c.Arc(circle.X, circle.Y, circle.Radius, a1, a0, false)
 	} else {
-		c.Arc(x, y, -r, a1, a0, true)
+		c.Arc(circle.X, circle.Y, -circle.Radius, a1, a0, true)
 	}
 }
 
