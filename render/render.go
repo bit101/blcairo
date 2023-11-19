@@ -129,7 +129,10 @@ func setComplete() {
 	seconds := int(endTime.Sub(startTime).Seconds())
 	minutes := seconds / 60
 	seconds = seconds % 60
-	ansi.ClearScreen()
+	ansi.MoveTo(1, 1)
+	ansi.ClearLine()
+	ansi.MoveTo(1, 2)
+	ansi.ClearLine()
 	ansi.ResetScrollRegion()
 	fmt.Println("Frames render complete!")
 	fmt.Printf("Elapsed time: %d:%02d.\n\n\n", minutes, seconds)

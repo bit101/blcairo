@@ -69,7 +69,6 @@ func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	cmd := exec.Command("ffmpeg", "-framerate", fpsArg, "-i", path, "-s:v", sizeArg,
 		"-c:v", "libx264", "-profile:v", "high", "-crf", "20",
 		"-pix_fmt", "yuv420p", outFileName)
-	println(cmd.String())
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
