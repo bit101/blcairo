@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 )
 
 var imageRenderType = "png"
@@ -96,10 +95,16 @@ func MixAV(videoFileName, audioFileName, outFileName string) {
 
 // ViewImage displays an image using installed image viewer.
 func ViewImage(imagePath string) {
-	cmd := exec.Command("eog", imagePath)
-	if runtime.GOOS == "darwin" {
-		cmd = exec.Command("qlmanage", "-p", imagePath)
+	cmd := exec.Command("bitlibImageViewer", imagePath)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
+}
+
+// ViewGif plays an animated gif using installed gif viewer
+func ViewGif(imagePath string) {
+	cmd := exec.Command("bitlibGifViewer", imagePath)
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -119,15 +124,9 @@ func VLC(fileName string, loop bool) {
 	}
 }
 
-// MPV launches mpv to play a video
-func MPV(fileName string, loop bool) {
-	loopArg := ""
-	loopTimes := ""
-	if loop {
-		loopArg = "--loop"
-		loopTimes = "inf"
-	}
-	cmd := exec.Command("mpv", loopArg, loopTimes, fileName)
+// PlayVideo launches an app to play a video
+func PlayVideo(fileName string) {
+	cmd := exec.Command("bitlibVideoPlayer", fileName)
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)

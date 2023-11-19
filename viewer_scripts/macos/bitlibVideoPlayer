@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# opens mpv.app with given video, infinitely loops.
+open -a mpv $1 --args --loop inf

@@ -47,4 +47,8 @@ Very significant and somewhat slimmed down copy of Erik Unger's version https://
 
 3. Check examples in `examples`
 
+### Image Viewing
+
+See the `viewer_scripts` folder and follow the directions there to set up image, gif and video viewing on your platform.
+
 Copyrights: See LICENSE file

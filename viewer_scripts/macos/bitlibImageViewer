@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# opens image with qlmanage
+qlmanage -p $1

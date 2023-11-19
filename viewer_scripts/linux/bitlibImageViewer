@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# opens image with eog
+eog $1
