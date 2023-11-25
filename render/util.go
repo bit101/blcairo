@@ -20,19 +20,25 @@ func UseBMP(value bool) {
 }
 
 // MakeGIF creates an animated gif with the given tool.
-func MakeGIF(tool, folder, outFileName string, fps float64) {
+func MakeGIF(tool, folder, outFileName string, fps, seconds int) {
+	fmt.Println("Converting to GIF...")
 	os.RemoveAll(outFileName)
 	if tool == "convert" {
 		ConvertToGIF(folder, outFileName, fps)
 	} else if tool == "ffmpeg" {
 		FfmpegToGIF(folder, outFileName, fps)
 	}
-
+	fmt.Println("GIF complete!")
+	data, _ := os.Stat(outFileName)
+	fmt.Println("File: ", outFileName)
+	fmt.Printf("FPS: %d\n", int(fps))
+	fmt.Printf("Time: %d seconds\n", seconds)
+	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 
 // ConvertToGIF converts a folder of pngs into an animated gif using imagemagick convert.
-func ConvertToGIF(folder, outFileName string, fps float64) {
-	delay := fmt.Sprintf("%f", 1000.0/fps/10.0)
+func ConvertToGIF(folder, outFileName string, fps int) {
+	delay := fmt.Sprintf("%f", 1000.0/float64(fps)/10.0)
 	path := folder + "/*." + imageRenderType
 	cmd := exec.Command("convert", "-delay", delay, "-layers", "Optimize", path, outFileName)
 	err := cmd.Run()
@@ -42,9 +48,9 @@ func ConvertToGIF(folder, outFileName string, fps float64) {
 }
 
 // FfmpegToGIF converts a folder of pngs into an animated gif using ffmpeg.
-func FfmpegToGIF(folder, outFileName string, fps float64) {
+func FfmpegToGIF(folder, outFileName string, fps int) {
 	path := folder + "/frame_%04d." + imageRenderType
-	fpsArg := fmt.Sprintf("%d", int(fps))
+	fpsArg := fmt.Sprintf("%d", fps)
 
 	paletteCmd := exec.Command("ffmpeg", "-y", "-i", path, "-vf", "palettegen", "palette.png")
 	err := paletteCmd.Run()
@@ -60,7 +66,8 @@ func FfmpegToGIF(folder, outFileName string, fps float64) {
 }
 
 // ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
-func ConvertToVideo(folder, outFileName string, w, h, fps int) {
+func ConvertToVideo(folder, outFileName string, w, h, fps, seconds int) {
+	fmt.Println("Converting to video...")
 	os.RemoveAll(outFileName)
 	path := folder + "/frame_%04d." + imageRenderType
 	fpsArg := fmt.Sprintf("%d", fps)
@@ -73,6 +80,13 @@ func ConvertToVideo(folder, outFileName string, w, h, fps int) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Video complete!")
+	data, err := os.Stat(outFileName)
+	fmt.Println("File: ", outFileName)
+	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
+	fmt.Printf("FPS: %d\n", fps)
+	fmt.Printf("Time: %d seconds\n", seconds)
+	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 
 // MixAV mixes an audio and video file.

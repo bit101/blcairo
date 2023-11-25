@@ -19,10 +19,16 @@ type FrameFunc func(*cairo.Context, float64, float64, float64)
 
 // Image sets up the rendering of a single image.
 func Image(width, height float64, path string, frameFunc FrameFunc, percent float64) {
+	fmt.Println("Generating image...")
 	surface := cairo.NewSurface(int(width), int(height))
 	context := cairo.NewContext(surface)
 	frameFunc(context, width, height, percent)
 	surface.WriteToPNG(path)
+	fmt.Println("Image complete!")
+	data, _ := os.Stat(path)
+	fmt.Println("File: ", path)
+	fmt.Printf("Resolution: %dx%d\n", int(width), int(height))
+	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 
 // Frames sets up the renderin of a series of frames.
@@ -63,6 +69,11 @@ func FrameRange(width, height float64, numFrames, start, end int, frames string,
 
 // SpriteSheet sets up the rendering of a sprite sheet.
 func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames int, frameFunc FrameFunc) {
+	// todo: create an intermediate surface of sizw width*height. Pass its context to the frameFunc.
+	// Then draw it to the correct location in the main surface.
+	// This will allow for functions that affect the whole context to work in frameFunc, such as:
+	// clearing functions, translateCenter
+	// as well as limiting the scope of functions that draw outside bounds.
 	x := 0.0
 	y := 0.0
 	nf := float64(numFrames)
@@ -135,5 +146,5 @@ func setComplete() {
 	ansi.ClearLine()
 	ansi.ResetScrollRegion()
 	fmt.Println("Frames render complete!")
-	fmt.Printf("Elapsed time: %d:%02d.\n\n\n", minutes, seconds)
+	fmt.Printf("Elapsed time: %d:%02d.\n\n", minutes, seconds)
 }
