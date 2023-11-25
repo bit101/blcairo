@@ -26,7 +26,7 @@ func Image(width, height float64, path string, frameFunc FrameFunc, percent floa
 	surface.WriteToPNG(path)
 	fmt.Println("Image complete!")
 	data, _ := os.Stat(path)
-	fmt.Println("File: ", path)
+	fmt.Println("File:", path)
 	fmt.Printf("Resolution: %dx%d\n", int(width), int(height))
 	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }

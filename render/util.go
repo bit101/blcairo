@@ -11,6 +11,7 @@ import (
 
 var imageRenderType = "png"
 
+// UseBMP sets whether or not images should be rendered as bmp or png
 func UseBMP(value bool) {
 	if value {
 		imageRenderType = "bmp"
@@ -20,7 +21,7 @@ func UseBMP(value bool) {
 }
 
 // MakeGIF creates an animated gif with the given tool.
-func MakeGIF(tool, folder, outFileName string, fps, seconds int) {
+func MakeGIF(tool, folder, outFileName string, w, h float64, fps, seconds int) {
 	fmt.Println("Converting to GIF...")
 	os.RemoveAll(outFileName)
 	if tool == "convert" {
@@ -30,7 +31,8 @@ func MakeGIF(tool, folder, outFileName string, fps, seconds int) {
 	}
 	fmt.Println("GIF complete!")
 	data, _ := os.Stat(outFileName)
-	fmt.Println("File: ", outFileName)
+	fmt.Println("File:", outFileName)
+	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
 	fmt.Printf("FPS: %d\n", int(fps))
 	fmt.Printf("Time: %d seconds\n", seconds)
 	fmt.Printf("Size: %dkb\n", data.Size()/1000)
@@ -66,12 +68,12 @@ func FfmpegToGIF(folder, outFileName string, fps int) {
 }
 
 // ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
-func ConvertToVideo(folder, outFileName string, w, h, fps, seconds int) {
+func ConvertToVideo(folder, outFileName string, w, h float64, fps, seconds int) {
 	fmt.Println("Converting to video...")
 	os.RemoveAll(outFileName)
 	path := folder + "/frame_%04d." + imageRenderType
 	fpsArg := fmt.Sprintf("%d", fps)
-	sizeArg := fmt.Sprintf("%dx%d", w, h)
+	sizeArg := fmt.Sprintf("%dx%d", int(w), int(h))
 
 	cmd := exec.Command("ffmpeg", "-framerate", fpsArg, "-i", path, "-s:v", sizeArg,
 		"-c:v", "libx264", "-profile:v", "high", "-crf", "20",
@@ -82,7 +84,7 @@ func ConvertToVideo(folder, outFileName string, w, h, fps, seconds int) {
 	}
 	fmt.Println("Video complete!")
 	data, err := os.Stat(outFileName)
-	fmt.Println("File: ", outFileName)
+	fmt.Println("File:", outFileName)
 	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
 	fmt.Printf("FPS: %d\n", fps)
 	fmt.Printf("Time: %d seconds\n", seconds)
