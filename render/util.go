@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 )
 
 var imageRenderType = "png"
@@ -35,6 +36,22 @@ func MakeGIF(tool, folder, outFileName string, w, h float64, fps, seconds int) {
 	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
 	fmt.Printf("FPS: %d\n", int(fps))
 	fmt.Printf("Time: %d seconds\n", seconds)
+	fmt.Printf("Size: %dkb\n", data.Size()/1000)
+}
+
+// MakeMontage creates an animated gif with the given tool.
+func MakeMontage(cols int, folder, outFileName string) {
+	fmt.Println("Making montage...")
+	os.RemoveAll(outFileName)
+	path := folder + "/*." + imageRenderType
+	cmd := exec.Command("montage", path, "-tile", strconv.Itoa(cols), "-geometry", "+1+1", outFileName)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Montage complete!")
+	data, _ := os.Stat(outFileName)
+	fmt.Println("File:", outFileName)
 	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 

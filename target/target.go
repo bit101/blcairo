@@ -12,4 +12,6 @@ const (
 	Video
 	// SpriteSheet will render a sprite sheet.
 	SpriteSheet
+	// Montage will render a sprite sheet.
+	Montage
 )

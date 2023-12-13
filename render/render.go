@@ -40,7 +40,7 @@ func Frames(width, height float64, numFrames int, frames string, frameFunc Frame
 	context := cairo.NewContext(surface)
 	for frame := 0; frame < numFrames; frame++ {
 		percent := float64(frame) / float64(numFrames)
-		setProgress(percent)
+		setProgress(frame, numFrames, percent)
 		frameFunc(context, width, height, percent)
 		surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, frame))
 	}
@@ -60,7 +60,7 @@ func FrameRange(width, height float64, numFrames, start, end int, frames string,
 	context := cairo.NewContext(surface)
 	for frame := start; frame <= end; frame++ {
 		percent := float64(frame) / float64(numFrames)
-		setProgress(percent)
+		setProgress(frame, numFrames, percent)
 		frameFunc(context, width, height, percent)
 		surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, frame))
 	}
@@ -74,6 +74,7 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 	// This will allow for functions that affect the whole context to work in frameFunc, such as:
 	// clearing functions, translateCenter
 	// as well as limiting the scope of functions that draw outside bounds.
+	initProgress()
 	x := 0.0
 	y := 0.0
 	nf := float64(numFrames)
@@ -86,6 +87,7 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 		context.Save()
 		context.Translate(x, y)
 		percent := i / float64(numFrames)
+		setProgress(int(i), numFrames, percent)
 		frameFunc(context, width, height, percent)
 		context.Restore()
 
@@ -96,6 +98,7 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 		}
 	}
 	surface.WriteToPNG(path)
+	setComplete()
 }
 
 func initProgress() {
@@ -105,7 +108,7 @@ func initProgress() {
 	startTime = time.Now()
 }
 
-func setProgress(percent float64) {
+func setProgress(frame, total int, percent float64) {
 	ansi.Save()
 	ansi.MoveTo(1, 1)
 	ansi.ClearLine()
@@ -119,15 +122,15 @@ func setProgress(percent float64) {
 			ansi.Print(ansi.BoldYellow, "#")
 		}
 	}
-	fmt.Print("]")
-	fmt.Printf(" %0.2f%%", percent*100)
+	fmt.Println("]")
+	fmt.Printf("Frame %d of %d (%0.1f%%)\n", frame, total, percent*100)
 
 	endTime := time.Now()
 	seconds := int(endTime.Sub(startTime).Seconds() / percent * (1 - percent))
 	minutes := seconds / 60
 	seconds = seconds % 60
 
-	ansi.MoveTo(1, 2)
+	// ansi.MoveTo(1, 3)
 	ansi.ClearLine()
 	if percent > 0 {
 		fmt.Printf("Estimated %d:%02d left", minutes, seconds)
