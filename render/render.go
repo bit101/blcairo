@@ -28,7 +28,7 @@ func Image(width, height float64, path string, frameFunc FrameFunc, percent floa
 	data, _ := os.Stat(path)
 	fmt.Println("File:", path)
 	fmt.Printf("Resolution: %dx%d\n", int(width), int(height))
-	fmt.Printf("Size: %dkb\n", data.Size()/1000)
+	fmt.Printf("Size: %0.2f kb\n", float64(data.Size())/1000)
 }
 
 // Frames sets up the renderin of a series of frames.
