@@ -35,11 +35,14 @@ func MakeGIF(tool, folder, outFileName string, w, h float64, fps, seconds int) {
 	fmt.Println("File:", outFileName)
 	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
 	fmt.Printf("FPS: %d\n", int(fps))
-	fmt.Printf("Time: %d seconds\n", seconds)
+	minutes := seconds / 60
+	seconds = seconds % 60
+	fmt.Printf("Time: %d:%02d", minutes, seconds)
 	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 
 // MakeMontage creates an animated gif with the given tool.
+// Set cols to 0 for auto sizing
 func MakeMontage(cols int, folder, outFileName string) {
 	fmt.Println("Making montage...")
 	os.RemoveAll(outFileName)
@@ -105,6 +108,9 @@ func ConvertToVideo(folder, outFileName string, w, h float64, fps, seconds int) 
 	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
 	fmt.Printf("FPS: %d\n", fps)
 	fmt.Printf("Time: %d seconds\n", seconds)
+	minutes := seconds / 60
+	seconds = seconds % 60
+	fmt.Printf("Time: %d:%02d\n", minutes, seconds)
 	fmt.Printf("Size: %dkb\n", data.Size()/1000)
 }
 

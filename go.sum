@@ -1,7 +1,5 @@
-github.com/bit101/bitlib v0.4.6 h1:jA4Fx4fyjcnFxChIcSPocjUpIzUvosWdI3V+UkD9Jm8=
-github.com/bit101/bitlib v0.4.6/go.mod h1:d0L7f0E8a21VD7cDuVuIsNyD4yqqxZsvgKxh5Nx433E=
-github.com/bit101/bitlib v0.4.7 h1:+H/UNQmEMPkNk2CIih0hVWnL1GP4lEH9BnZHupZ+Pns=
-github.com/bit101/bitlib v0.4.7/go.mod h1:d0L7f0E8a21VD7cDuVuIsNyD4yqqxZsvgKxh5Nx433E=
+github.com/bit101/bitlib v0.4.10 h1:gSvZbAM/+KQkXAqiKJynElMvUSkrh1AbQAxPZwSlaFo=
+github.com/bit101/bitlib v0.4.10/go.mod h1:d0L7f0E8a21VD7cDuVuIsNyD4yqqxZsvgKxh5Nx433E=
 github.com/bit101/go-ansi v1.5.1 h1:iFR7XPLK0Kt4lkxhpH4r5gwhE39JldIWMr7kHCDQbcc=
 github.com/bit101/go-ansi v1.5.1/go.mod h1:7IFt7zupyULqKEDbOkGsDBGu+Bvzu3pYu0Ojnn7aGQQ=
 golang.org/x/sys v0.13.0 h1:Af8nKPmuFypiUBjVoU9V20FiaFXOcuZI21p0ycVYYGE=

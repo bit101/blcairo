@@ -1079,3 +1079,35 @@ func (c *Context) StrokeTriangleObject(t *geom.Triangle) {
 func (c *Context) FillTriangleObject(t *geom.Triangle) {
 	c.FillPath(t.Points())
 }
+
+// Tube draws the outline of a tube connecting two circles.
+// You can then manually draw one or both ends of the tube by drawing one or both circles.
+func (c *Context) Tube(c0, c1 *geom.Circle) {
+	c.SetLineWidth(0.25)
+	c.SetLineWidth(1)
+	seg0 := geom.TangentSegmentToCircles(c0, c1, -1)
+	seg1 := geom.TangentSegmentToCircles(c0, c1, 1)
+
+	c.LineTo(seg0.X0, seg0.Y0)
+	c.LineTo(seg0.X1, seg0.Y1)
+	start := math.Atan2(seg0.Y1-c1.Y, seg0.X1-c1.X)
+	end := math.Atan2(seg1.Y1-c1.Y, seg1.X1-c1.X)
+	c.Arc(c1.X, c1.Y, c1.Radius, start, end, false)
+
+	c.LineTo(seg1.X1, seg1.Y1)
+	start = math.Atan2(seg1.Y0-c0.Y, seg1.X0-c0.X)
+	end = math.Atan2(seg0.Y0-c0.Y, seg0.X0-c0.X)
+	c.Arc(c0.X, c0.Y, c0.Radius, start, end, false)
+}
+
+// StrokeTube strokes the outline of a tube between two circles.
+func (c *Context) StrokeTube(c0, c1 *geom.Circle) {
+	c.Tube(c0, c1)
+	c.Stroke()
+}
+
+// FillTube fills the outline of a tube between two circles.
+func (c *Context) FillTube(c0, c1 *geom.Circle) {
+	c.Tube(c0, c1)
+	c.Fill()
+}

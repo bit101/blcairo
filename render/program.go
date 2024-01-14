@@ -58,7 +58,7 @@ func (p *Program) TotalFrames() int {
 
 // Seconds returns the time in seconds of the Program
 func (p *Program) Seconds() int {
-	return p.TotalFrames() * p.FPS
+	return p.TotalFrames() / p.FPS
 }
 
 // Render coordinates the rendering of all scenes in this Program.
@@ -84,4 +84,16 @@ func (p *Program) Render(frames string) {
 		}
 	}
 	setComplete()
+}
+
+// RenderVideo renders the program to a video file using the given frames directory and output filename
+func (p *Program) RenderVideo(frames, fileName string) {
+	p.Render(frames)
+	ConvertToVideo(frames, fileName, p.Width, p.Height, p.FPS, p.Seconds())
+}
+
+// RenderGif renders the program to a video file using the given frames directory and output filename
+func (p *Program) RenderGif(frames, fileName string) {
+	p.Render(frames)
+	FfmpegToGIF(frames, fileName, p.FPS)
 }
