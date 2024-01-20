@@ -22,6 +22,18 @@ func NewMatrix() *Matrix {
 	return &matrix
 }
 
+// NewMatrixWithValues creates a new identiy matrix
+func NewMatrixWithValues(xx, yx, xy, yy, x0, y0 float64) *Matrix {
+	matrix := Matrix{}
+	matrix.Init(xx, yx, xy, yy, x0, y0)
+	return &matrix
+}
+
+// Init initializes htis matrix to the given values
+func (m *Matrix) Init(xx, yx, xy, yy, x0, y0 float64) {
+	C.cairo_matrix_init(m.Native(), C.double(xx), C.double(yx), C.double(xy), C.double(yy), C.double(x0), C.double(y0))
+}
+
 // Native returns native c pointer to a matrix
 func (m *Matrix) Native() *C.cairo_matrix_t {
 	return (*C.cairo_matrix_t)(unsafe.Pointer(m))

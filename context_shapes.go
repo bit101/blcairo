@@ -1061,9 +1061,9 @@ func (c *Context) StrokeText(text string, x, y float64) {
 	c.Restore()
 }
 
-// FillTextFloat draws a float64
-func (c *Context) FillTextFloat(f float64, x, y float64) {
-	c.FillText(fmt.Sprintf("%f", f), x, y)
+// FillTextAny draws text from any value
+func (c *Context) FillTextAny(v any, x, y float64) {
+	c.FillText(fmt.Sprintf("%v", v), x, y)
 }
 
 ////////////////////
