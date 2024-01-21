@@ -58,6 +58,12 @@ func CreateRGBAPattern(red, green, blue, alpha float64) *Pattern {
 	return &Pattern{p}
 }
 
+func CreatePatternForSurface(surface *Surface) *Pattern {
+	p := C.cairo_pattern_create_for_surface(surface.surface)
+	// cairo_pattern_t * cairo_pattern_create_for_surface()
+	return &Pattern{p}
+}
+
 ////////////////////////////
 // gradient methods
 
@@ -225,15 +231,17 @@ func (p *Pattern) GetCornerColorRGBA(patchNum, pointNum uint) (float64, float64,
 	return float64(r), float64(g), float64(b), float64(a)
 }
 
+func (p *Pattern) SetFilter(filter Filter) {
+	C.cairo_pattern_set_filter(p.pattern, C.cairo_filter_t(filter))
+}
+
 // TODO:
-// cairo_pattern_t *	cairo_pattern_create_for_surface ()
 // cairo_status_t	cairo_pattern_get_surface ()
 // cairo_pattern_t *	cairo_pattern_reference ()
 // void	cairo_pattern_destroy ()
 // cairo_status_t	cairo_pattern_status ()
 // void	cairo_pattern_set_extend ()
 // cairo_extend_t	cairo_pattern_get_extend ()
-// void	cairo_pattern_set_filter ()
 // cairo_filter_t	cairo_pattern_get_filter ()
 // cairo_pattern_type_t	cairo_pattern_get_type ()
 // unsigned int	cairo_pattern_get_reference_count ()
