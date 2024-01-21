@@ -58,9 +58,9 @@ func CreateRGBAPattern(red, green, blue, alpha float64) *Pattern {
 	return &Pattern{p}
 }
 
+// CreatePatternForSurface creates a pattern based on the surface passed in.
 func CreatePatternForSurface(surface *Surface) *Pattern {
 	p := C.cairo_pattern_create_for_surface(surface.surface)
-	// cairo_pattern_t * cairo_pattern_create_for_surface()
 	return &Pattern{p}
 }
 
@@ -231,9 +231,17 @@ func (p *Pattern) GetCornerColorRGBA(patchNum, pointNum uint) (float64, float64,
 	return float64(r), float64(g), float64(b), float64(a)
 }
 
+// SetFilter sets the filter to be used on this pattern.
 func (p *Pattern) SetFilter(filter Filter) {
 	C.cairo_pattern_set_filter(p.pattern, C.cairo_filter_t(filter))
 }
+
+// GetFilter returns the filter currently in use on this pattern.
+func (p *Pattern) GetFilter() Filter {
+	return Filter(C.cairo_pattern_get_filter(p.pattern))
+}
+
+// cairo_filter_t	cairo_pattern_get_filter ()
 
 // TODO:
 // cairo_status_t	cairo_pattern_get_surface ()
@@ -242,7 +250,6 @@ func (p *Pattern) SetFilter(filter Filter) {
 // cairo_status_t	cairo_pattern_status ()
 // void	cairo_pattern_set_extend ()
 // cairo_extend_t	cairo_pattern_get_extend ()
-// cairo_filter_t	cairo_pattern_get_filter ()
 // cairo_pattern_type_t	cairo_pattern_get_type ()
 // unsigned int	cairo_pattern_get_reference_count ()
 // cairo_status_t	cairo_pattern_set_user_data ()
