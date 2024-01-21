@@ -3,7 +3,6 @@ package iso
 import (
 	"math"
 
-	"github.com/bit101/bitlib/blcolor"
 	cairo "github.com/bit101/blcairo"
 )
 
@@ -27,10 +26,12 @@ type Box struct {
 	W     float64
 	D     float64
 	H     float64
-	Top   blcolor.Color
-	Left  blcolor.Color
-	Right blcolor.Color
+	Top   SideRender
+	Left  SideRender
+	Right SideRender
 }
+
+type SideRender func(*cairo.Context, float64, float64, float64, float64)
 
 // NewBox creates a new box of the given size
 func NewBox(w, d, h float64) *Box {
@@ -41,10 +42,25 @@ func NewBox(w, d, h float64) *Box {
 		W:     w,
 		D:     d,
 		H:     h,
-		Top:   blcolor.RGB(1, 1, 1),
-		Left:  blcolor.RGB(0.5, 0.5, 0.5),
-		Right: blcolor.RGB(0.75, 0.75, 0.75),
+		Top:   TopColorRender,
+		Left:  LeftColorRender,
+		Right: RightColorRender,
 	}
+}
+
+func TopColorRender(context *cairo.Context, x, y, w, h float64) {
+	context.SetSourceRGB(1, 1, 1)
+	context.FillRectangle(x, y, w, h)
+}
+
+func LeftColorRender(context *cairo.Context, x, y, w, h float64) {
+	context.SetSourceRGB(0.5, 0.5, 0.5)
+	context.FillRectangle(x, y, w, h)
+}
+
+func RightColorRender(context *cairo.Context, x, y, w, h float64) {
+	context.SetSourceRGB(0.75, 0.75, 0.75)
+	context.FillRectangle(x, y, w, h)
 }
 
 // Position positions the box
@@ -87,16 +103,14 @@ func (box *Box) drawBack(context *cairo.Context) {
 func (box *Box) drawLeftWall(context *cairo.Context) {
 	context.Save()
 	context.Transform(*leftMatrix)
-	context.SetSourceColor(box.Left)
-	context.FillRectangle(-box.D, -box.H, box.D, box.H)
+	box.Left(context, -box.D, -box.H, box.D, box.H)
 	context.Restore()
 }
 
 func (box *Box) drawRightWall(context *cairo.Context) {
 	context.Save()
 	context.Transform(*rightMatrix)
-	context.SetSourceColor(box.Right)
-	context.FillRectangle(0, -box.H, box.W, box.H)
+	box.Right(context, 0, -box.H, box.W, box.H)
 	context.Restore()
 }
 
@@ -106,7 +120,6 @@ func (box *Box) drawTop(context *cairo.Context) {
 	context.Scale(1, 0.5)
 	context.Scale(math.Sqrt2, math.Sqrt2)
 	context.Rotate(math.Pi / 4)
-	context.SetSourceColor(box.Top)
-	context.FillRectangle(-box.D, -box.W, box.D, box.W)
+	box.Top(context, -box.D, -box.W, box.D, box.W)
 	context.Restore()
 }
