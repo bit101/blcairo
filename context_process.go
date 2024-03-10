@@ -15,7 +15,8 @@ func (c *Context) Grayscale() {
 	g := 0.587
 	b := 0.113
 	for i := 0; i < len(data); i += 4 {
-		val := byte(r*float64(data[i]) + g*float64(data[i+1]) + b*float64(data[i+2]))
+		// note channel order: bgr
+		val := byte(b*float64(data[i]) + g*float64(data[i+1]) + r*float64(data[i+2]))
 		data[i] = val
 		data[i+1] = val
 		data[i+2] = val
