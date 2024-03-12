@@ -164,12 +164,12 @@ func (c *Context) Hue(hue, t float64) {
 }
 
 // Blur executes a box blur.
-func (c *Context) Blur(ksize int) {
-	if ksize < 0 {
+func (c *Context) Blur(radius int) {
+	if radius < 0 {
 		log.Fatal("blur must be greater than zero")
 	}
-	if ksize < 2 {
-		// blur of 0 or 1 does nothing.
+	if radius < 1 {
+		// blur of 0 does nothing.
 		return
 	}
 
@@ -177,15 +177,14 @@ func (c *Context) Blur(ksize int) {
 	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
 	w := int(c.Width)
 	h := int(c.Height)
-
 	// doing a two-pass (h+v) blur is O(m^2*2n) m=bitmap size, n = kernel size
 	// as opposed to O(m^2*n^2) for a regular box blur
 	// horizontal blur
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
-			for j := -ksize / 2; j <= ksize/2; j++ {
-				rr, gg, bb, _ := srcBt.GetPixelInt(x+j, y)
+			for j := -radius; j <= radius; j++ {
+				rr, gg, bb, _ := srcBt.GetPixelInt(clampInt(x+j, 0, w-1), y)
 				r += rr
 				g += gg
 				b += bb
@@ -200,8 +199,8 @@ func (c *Context) Blur(ksize int) {
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
-			for j := -ksize / 2; j <= ksize/2; j++ {
-				rr, gg, bb, _ := dstBt.GetPixelInt(x, y+j)
+			for j := -radius; j <= radius; j++ {
+				rr, gg, bb, _ := dstBt.GetPixelInt(x, clampInt(y+j, 0, h-1))
 				r += rr
 				g += gg
 				b += bb
@@ -212,4 +211,42 @@ func (c *Context) Blur(ksize int) {
 	}
 	// the final pass put the bytes in src, so we copy that back.
 	srcBt.CopyToSurface(c.Surface)
+}
+
+// We'll use this in convolution filters to handle the edges.
+// Any time we ask for a pixel past the edge of the image,
+// it will give the pixel ON the edge instead.
+func clampInt(n, min, max int) int {
+	if n < min {
+		return min
+	}
+	if n > max {
+		return max
+	}
+	return n
+}
+
+// Sharpen executes a sharpen filter.
+func (c *Context) Sharpen() {
+	srcBt, _ := ByteTextureFromSurface(c.Surface)
+	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
+	w := int(c.Width)
+	h := int(c.Height)
+	kernel := [][]int{{0, -1, 0}, {-1, 5, -1}, {0, -1, 0}}
+
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, g, b := 0, 0, 0
+			for i := -1; i <= 1; i++ {
+				for j := -1; j <= 1; j++ {
+					rr, gg, bb, _ := srcBt.GetPixelInt(clampInt(x+i, 0, w-1), clampInt(y+j, 0, h))
+					r += rr * kernel[i+1][j+1]
+					g += gg * kernel[i+1][j+1]
+					b += bb * kernel[i+1][j+1]
+				}
+			}
+			dstBt.SetPixelInt(x, y, r, g, b, 255)
+		}
+	}
+	dstBt.CopyToSurface(c.Surface)
 }
