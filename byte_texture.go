@@ -47,6 +47,9 @@ func ByteTextureFromPNG(filePath string) (ByteTexture, error) {
 // GetPixel gets the value for a single pixel.
 // Values returned are normalized 0-1 for r, g, b, a.
 func (b *ByteTexture) GetPixel(x, y int) (float64, float64, float64, float64) {
+	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
+		return 0, 0, 0, 1
+	}
 	index := (y*b.Width + x) * 4
 	blue := float64(b.data[index])
 	green := float64(b.data[index+1])
@@ -55,14 +58,40 @@ func (b *ByteTexture) GetPixel(x, y int) (float64, float64, float64, float64) {
 	return red / 255.0, green / 255.0, blue / 255.0, alpha / 255.0
 }
 
+// GetPixelInt gets the value for a single pixel.
+// Values returned are 0-255 for r, g, b, a
+func (b *ByteTexture) GetPixelInt(x, y int) (int, int, int, int) {
+	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
+		return 0, 0, 0, 1
+	}
+	index := (y*b.Width + x) * 4
+	return int(b.data[index+2]), int(b.data[index+1]), int(b.data[index]), int(b.data[index+3])
+}
+
 // SetPixel sets the value for a single pixel.
 // Params are normalized 0-1 for r, g, b, a.
 func (b *ByteTexture) SetPixel(x, y int, red, green, blue, alpha float64) {
+	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
+		return
+	}
 	index := (y*b.Width + x) * 4
 	b.data[index] = byte(blue * 255.0)
 	b.data[index+1] = byte(green * 255.0)
 	b.data[index+2] = byte(red * 255.0)
 	b.data[index+3] = byte(alpha * 255.0)
+}
+
+// SetPixelInt sets the value for a single pixel.
+// Params are 0-255 for r, g, b, a
+func (b *ByteTexture) SetPixelInt(x, y int, red, green, blue, alpha int) {
+	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
+		return
+	}
+	index := (y*b.Width + x) * 4
+	b.data[index] = byte(blue)
+	b.data[index+1] = byte(green)
+	b.data[index+2] = byte(red)
+	b.data[index+3] = byte(alpha)
 }
 
 // CopyToSurface copies this ByteTexture's data into a surface
