@@ -58,6 +58,25 @@ func (b *ByteTexture) GetPixel(x, y int) (float64, float64, float64, float64) {
 	return red / 255.0, green / 255.0, blue / 255.0, alpha / 255.0
 }
 
+// GetPixelClamped gets the value for a single pixel.
+// Values returned are normalized 0-1 for r, g, b, a.
+// If x and y are beyond any edge of the image, it will return the edge pixel value.
+func (b *ByteTexture) GetPixelClamped(x, y, w, h int) (float64, float64, float64, float64) {
+	if x < 0 {
+		x = 0
+	}
+	if x >= w {
+		x = w - 1
+	}
+	if y < 0 {
+		y = 0
+	}
+	if y >= h {
+		y = h - 1
+	}
+	return b.GetPixel(x, y)
+}
+
 // GetPixelInt gets the value for a single pixel.
 // Values returned are 0-255 for r, g, b, a
 func (b *ByteTexture) GetPixelInt(x, y int) (int, int, int, int) {
@@ -66,6 +85,25 @@ func (b *ByteTexture) GetPixelInt(x, y int) (int, int, int, int) {
 	}
 	index := (y*b.Width + x) * 4
 	return int(b.data[index+2]), int(b.data[index+1]), int(b.data[index]), int(b.data[index+3])
+}
+
+// GetPixelIntClamped gets the value for a single pixel.
+// Values returned are normalized 0-1 for r, g, b, a.
+// If x and y are beyond any edge of the image, it will return the edge pixel value.
+func (b *ByteTexture) GetPixelIntClamped(x, y, w, h int) (int, int, int, int) {
+	if x < 0 {
+		x = 0
+	}
+	if x >= w {
+		x = w - 1
+	}
+	if y < 0 {
+		y = 0
+	}
+	if y >= h {
+		y = h - 1
+	}
+	return b.GetPixelInt(x, y)
 }
 
 // SetPixel sets the value for a single pixel.

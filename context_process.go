@@ -2,7 +2,6 @@
 package cairo
 
 import (
-	"log"
 	"math"
 
 	"github.com/bit101/bitlib/blcolor"
@@ -165,11 +164,9 @@ func (c *Context) Hue(hue, t float64) {
 
 // Blur executes a box blur.
 func (c *Context) Blur(radius int) {
-	if radius < 0 {
-		log.Fatal("blur must be greater than zero")
-	}
 	if radius < 1 {
 		// blur of 0 does nothing.
+		// blur of less than 0 is wrong. ignore.
 		return
 	}
 
@@ -184,7 +181,7 @@ func (c *Context) Blur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := srcBt.GetPixelInt(clampInt(x+j, 0, w-1), y)
+				rr, gg, bb, _ := srcBt.GetPixelIntClamped(x+j, y, w, h)
 				r += rr
 				g += gg
 				b += bb
@@ -200,7 +197,7 @@ func (c *Context) Blur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := dstBt.GetPixelInt(x, clampInt(y+j, 0, h-1))
+				rr, gg, bb, _ := dstBt.GetPixelIntClamped(x, y+j, w, h)
 				r += rr
 				g += gg
 				b += bb
@@ -213,17 +210,68 @@ func (c *Context) Blur(radius int) {
 	srcBt.CopyToSurface(c.Surface)
 }
 
-// We'll use this in convolution filters to handle the edges.
-// Any time we ask for a pixel past the edge of the image,
-// it will give the pixel ON the edge instead.
-func clampInt(n, min, max int) int {
-	if n < min {
-		return min
+// GaussianBlur executes a Gaussian blur.
+func (c *Context) GaussianBlur(radius int) {
+	if radius < 1 {
+		// blur of 0 does nothing.
+		// less than 0 is just wrong. we'll ignore.
+		return
 	}
-	if n > max {
-		return max
+	kernel := getGaussKernel(radius*2 + 1)
+
+	srcBt, _ := ByteTextureFromSurface(c.Surface)
+	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
+	w := int(c.Width)
+	h := int(c.Height)
+
+	// horizontal blur
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, g, b := 0.0, 0.0, 0.0
+			for j := -radius; j <= radius; j++ {
+				rr, gg, bb, _ := srcBt.GetPixelClamped(x+j, y, w, h)
+				k := kernel[j+radius]
+				r += rr * k
+				g += gg * k
+				b += bb * k
+			}
+			dstBt.SetPixel(x, y, r, g, b, 1)
+		}
 	}
-	return n
+
+	// vertical blur
+	// switch src and dst byte textures here
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, g, b := 0.0, 0.0, 0.0
+			for j := -radius; j <= radius; j++ {
+				rr, gg, bb, _ := dstBt.GetPixelClamped(x, y+j, w, h)
+				k := kernel[j+radius]
+				r += rr * k
+				g += gg * k
+				b += bb * k
+			}
+			srcBt.SetPixel(x, y, r, g, b, 1)
+		}
+	}
+	// the final pass put the bytes in src, so we copy that back.
+	srcBt.CopyToSurface(c.Surface)
+}
+
+func getGaussKernel(size int) []float64 {
+	sigma := float64(size-1) / 5
+	mean := size / 2
+	kernel := make([]float64, size)
+	sum := 0.0
+	for x := 0; x < size; x++ {
+		kernelValue := math.Exp(-0.5 * (math.Pow((float64(x-mean))/sigma, 2)))
+		kernel[x] = kernelValue
+		sum += kernelValue
+	}
+	for x := 0; x < size; x++ {
+		kernel[x] /= sum
+	}
+	return kernel
 }
 
 // Sharpen executes a sharpen filter.
@@ -239,7 +287,7 @@ func (c *Context) Sharpen() {
 			r, g, b := 0, 0, 0
 			for i := -1; i <= 1; i++ {
 				for j := -1; j <= 1; j++ {
-					rr, gg, bb, _ := srcBt.GetPixelInt(clampInt(x+i, 0, w-1), clampInt(y+j, 0, h))
+					rr, gg, bb, _ := srcBt.GetPixelIntClamped(x+i, y+j, w, h)
 					r += rr * kernel[i+1][j+1]
 					g += gg * kernel[i+1][j+1]
 					b += bb * kernel[i+1][j+1]
