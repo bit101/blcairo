@@ -6,6 +6,7 @@ import (
 
 	"github.com/bit101/bitlib/blcolor"
 	"github.com/bit101/bitlib/blmath"
+	"github.com/bit101/bitlib/random"
 )
 
 // Grayscale turns the image grayscale.
@@ -282,21 +283,74 @@ func (c *Context) Sharpen() {
 	dstIm := NewImageData(srcIm.Width, srcIm.Height)
 	w := int(c.Width)
 	h := int(c.Height)
-	kernel := [][]int{{0, -1, 0}, {-1, 5, -1}, {0, -1, 0}}
+	kernel := [][]float64{{0, -1, 0}, {-1, 5, -1}, {0, -1, 0}}
+	// kernel := [][]float64{{0, 0, 0}, {0, 2, 0}, {0, 0, 0}}
 
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			r, g, b := 0, 0, 0
+			r, g, b := 0.0, 0.0, 0.0
 			for i := -1; i <= 1; i++ {
 				for j := -1; j <= 1; j++ {
-					rr, gg, bb, _ := srcIm.GetPixelIntClamped(x+i, y+j, w, h)
+					rr, gg, bb, _ := srcIm.GetPixelClamped(x+i, y+j, w, h)
 					r += rr * kernel[i+1][j+1]
 					g += gg * kernel[i+1][j+1]
 					b += bb * kernel[i+1][j+1]
 				}
 			}
-			dstIm.SetPixelInt(x, y, r, g, b, 255)
+			r = blmath.Clamp(r, 0, 1)
+			g = blmath.Clamp(g, 0, 1)
+			b = blmath.Clamp(b, 0, 1)
+			dstIm.SetPixel(x, y, r, g, b, 1)
 		}
 	}
 	dstIm.CopyToSurface(c.Surface)
+}
+
+// MapGradient maps the brightness values in an image to a gradient between two colors.
+func (c *Context) MapGradient(col0, col1 blcolor.Color) {
+	w := int(c.Width)
+	h := int(c.Height)
+	c.Grayscale()
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, _, _, a := srcIm.GetPixel(x, y)
+			c := blcolor.Lerp(col0, col1, r)
+			srcIm.SetPixel(x, y, c.R, c.G, c.B, a)
+		}
+	}
+	srcIm.CopyToSurface(c.Surface)
+}
+
+// MapHue maps the brightness values in an image to a gradient between two hues.
+func (c *Context) MapHue(hue0, hue1 float64) {
+	w := int(c.Width)
+	h := int(c.Height)
+	c.Grayscale()
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, _, _, a := srcIm.GetPixel(x, y)
+			c := blcolor.HSV(blmath.Lerp(r, hue0, hue1), 1, 1)
+			srcIm.SetPixel(x, y, c.R, c.G, c.B, a)
+		}
+	}
+	srcIm.CopyToSurface(c.Surface)
+}
+
+// Noisify adds noise to an image.
+func (c *Context) Noisify(amount float64) {
+	w := int(c.Width)
+	h := int(c.Height)
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			r, g, b, a := srcIm.GetPixel(x, y)
+			r += random.FloatRange(-amount, amount)
+			g += random.FloatRange(-amount, amount)
+			g += random.FloatRange(-amount, amount)
+			srcIm.SetPixel(x, y, blmath.Clamp(r, 0, 1), blmath.Clamp(g, 0, 1), blmath.Clamp(b, 0, 1), a)
+		}
+	}
+	srcIm.CopyToSurface(c.Surface)
 }
