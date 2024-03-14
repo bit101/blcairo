@@ -73,6 +73,11 @@ func (c *Context) PushGroup() {
 	C.cairo_push_group(c.context)
 }
 
+// GetGroupTarget gets the surface for the current target - used to get the surface of a group after pushing.
+func (c *Context) GetGroupTarget() *Surface {
+	return &Surface{C.cairo_get_group_target(c.context)}
+}
+
 // PushGroupWithContent temporarily redirects drawing to an intermediate context known as a group, with content.
 func (c *Context) PushGroupWithContent(content Content) {
 	C.cairo_push_group_with_content(c.context, C.cairo_content_t(content))

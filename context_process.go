@@ -170,8 +170,8 @@ func (c *Context) Blur(radius int) {
 		return
 	}
 
-	srcBt, _ := ByteTextureFromSurface(c.Surface)
-	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	dstIm := NewImageData(srcIm.Width, srcIm.Height)
 	w := int(c.Width)
 	h := int(c.Height)
 	// doing a two-pass (h+v) blur is O(m^2*2n) m=bitmap size, n = kernel size
@@ -181,13 +181,13 @@ func (c *Context) Blur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := srcBt.GetPixelIntClamped(x+j, y, w, h)
+				rr, gg, bb, _ := srcIm.GetPixelIntClamped(x+j, y, w, h)
 				r += rr
 				g += gg
 				b += bb
 				t++
 			}
-			dstBt.SetPixelInt(x, y, r/t, g/t, b/t, 255)
+			dstIm.SetPixelInt(x, y, r/t, g/t, b/t, 255)
 		}
 	}
 
@@ -197,17 +197,17 @@ func (c *Context) Blur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, t := 0, 0, 0, 0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := dstBt.GetPixelIntClamped(x, y+j, w, h)
+				rr, gg, bb, _ := dstIm.GetPixelIntClamped(x, y+j, w, h)
 				r += rr
 				g += gg
 				b += bb
 				t++
 			}
-			srcBt.SetPixelInt(x, y, r/t, g/t, b/t, 255)
+			srcIm.SetPixelInt(x, y, r/t, g/t, b/t, 255)
 		}
 	}
 	// the final pass put the bytes in src, so we copy that back.
-	srcBt.CopyToSurface(c.Surface)
+	srcIm.CopyToSurface(c.Surface)
 }
 
 // GaussianBlur executes a Gaussian blur.
@@ -219,23 +219,24 @@ func (c *Context) GaussianBlur(radius int) {
 	}
 	kernel := getGaussKernel(radius*2 + 1)
 
-	srcBt, _ := ByteTextureFromSurface(c.Surface)
-	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	dstIm := NewImageData(srcIm.Width, srcIm.Height)
 	w := int(c.Width)
 	h := int(c.Height)
 
 	// horizontal blur
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			r, g, b := 0.0, 0.0, 0.0
+			r, g, b, a := 0.0, 0.0, 0.0, 0.0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := srcBt.GetPixelClamped(x+j, y, w, h)
+				rr, gg, bb, aa := srcIm.GetPixelClamped(x+j, y, w, h)
 				k := kernel[j+radius]
 				r += rr * k
 				g += gg * k
 				b += bb * k
+				a += aa * k
 			}
-			dstBt.SetPixel(x, y, r, g, b, 1)
+			dstIm.SetPixel(x, y, r, g, b, a)
 		}
 	}
 
@@ -243,19 +244,20 @@ func (c *Context) GaussianBlur(radius int) {
 	// switch src and dst byte textures here
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
-			r, g, b := 0.0, 0.0, 0.0
+			r, g, b, a := 0.0, 0.0, 0.0, 0.0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, _ := dstBt.GetPixelClamped(x, y+j, w, h)
+				rr, gg, bb, aa := dstIm.GetPixelClamped(x, y+j, w, h)
 				k := kernel[j+radius]
 				r += rr * k
 				g += gg * k
 				b += bb * k
+				a += aa * k
 			}
-			srcBt.SetPixel(x, y, r, g, b, 1)
+			srcIm.SetPixel(x, y, r, g, b, a)
 		}
 	}
 	// the final pass put the bytes in src, so we copy that back.
-	srcBt.CopyToSurface(c.Surface)
+	srcIm.CopyToSurface(c.Surface)
 }
 
 func getGaussKernel(size int) []float64 {
@@ -276,8 +278,8 @@ func getGaussKernel(size int) []float64 {
 
 // Sharpen executes a sharpen filter.
 func (c *Context) Sharpen() {
-	srcBt, _ := ByteTextureFromSurface(c.Surface)
-	dstBt := NewByteTexture(srcBt.Width, srcBt.Height)
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	dstIm := NewImageData(srcIm.Width, srcIm.Height)
 	w := int(c.Width)
 	h := int(c.Height)
 	kernel := [][]int{{0, -1, 0}, {-1, 5, -1}, {0, -1, 0}}
@@ -287,14 +289,14 @@ func (c *Context) Sharpen() {
 			r, g, b := 0, 0, 0
 			for i := -1; i <= 1; i++ {
 				for j := -1; j <= 1; j++ {
-					rr, gg, bb, _ := srcBt.GetPixelIntClamped(x+i, y+j, w, h)
+					rr, gg, bb, _ := srcIm.GetPixelIntClamped(x+i, y+j, w, h)
 					r += rr * kernel[i+1][j+1]
 					g += gg * kernel[i+1][j+1]
 					b += bb * kernel[i+1][j+1]
 				}
 			}
-			dstBt.SetPixelInt(x, y, r, g, b, 255)
+			dstIm.SetPixelInt(x, y, r, g, b, 255)
 		}
 	}
-	dstBt.CopyToSurface(c.Surface)
+	dstIm.CopyToSurface(c.Surface)
 }

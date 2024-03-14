@@ -8,12 +8,12 @@ import (
 	"github.com/bit101/bitlib/blmath"
 )
 
-// SphereMap maps a ByteTexture onto a sphere.
-// bt is the ByteTexture instance.
+// SphereMap maps an ImageData onto a sphere.
+// bt is the ImageData instance.
 // x, y is the top left of the sphere bounding box, diameter is the diameter of the sphere.
 // rotation is normalized. -1.0 is a full rotation to the right, 1.0 is a full rotation to the left.
-func (c *Context) SphereMap(bt ByteTexture, x, y, diameter, rotation float64) {
-	buffer, err := ByteTextureFromSurface(c.Surface)
+func (c *Context) SphereMap(bt ImageData, x, y, diameter, rotation float64) {
+	buffer, err := ImageDataFromSurface(c.Surface)
 	if err != nil {
 		log.Fatalf("unable to create buffer: %s", err)
 	}
@@ -42,14 +42,14 @@ func (c *Context) SphereMap(bt ByteTexture, x, y, diameter, rotation float64) {
 }
 
 // PolarMap maps an image to polar coordinates - essentially wraps it around in a donut shape.
-// bt is a ByteTexture containing the image data.
+// bt is an ImageData containing the image data.
 // cx, cy is the center of the donut shape.
 // outerRadius and innerRadius are the radii of the donut shape.
 // cropTop and cropBottom discard that many pixels from the top and bottom of the source image.
 // rotation determines the starting point of the wrapped image. If rotation is 0, the image will wrap clockwise from the bottom of the donut.
 // mirror will mirror the image, allowing it to blend perfectly all the way around.
-func (c *Context) PolarMap(bt ByteTexture, cx, cy, outerRadius, innerRadius, cropTop, cropBottom, rotation float64, mirror bool) {
-	buffer, err := ByteTextureFromSurface(c.Surface)
+func (c *Context) PolarMap(bt ImageData, cx, cy, outerRadius, innerRadius, cropTop, cropBottom, rotation float64, mirror bool) {
+	buffer, err := ImageDataFromSurface(c.Surface)
 	if err != nil {
 		log.Fatalf("unable to create buffer: %s", err)
 	}

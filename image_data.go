@@ -6,47 +6,47 @@ import (
 	"fmt"
 )
 
-// ByteTexture holds the pixel data from a surface.
-type ByteTexture struct {
+// ImageData holds the pixel data from a surface.
+type ImageData struct {
 	data   []byte
 	Width  int
 	Height int
 }
 
-// NewByteTexture creates a new empty ByteTexture with the given width and height.
-func NewByteTexture(w, h int) ByteTexture {
-	return ByteTexture{
+// NewImageData creates a new empty ImageData with the given width and height.
+func NewImageData(w, h int) ImageData {
+	return ImageData{
 		data:   make([]byte, w*h*4),
 		Width:  w,
 		Height: h,
 	}
 }
 
-// ByteTextureFromSurface creates a new ByteTexture from a surface.
-func ByteTextureFromSurface(surface *Surface) (ByteTexture, error) {
+// ImageDataFromSurface creates a new ImageData from a surface.
+func ImageDataFromSurface(surface *Surface) (ImageData, error) {
 	data, err := surface.GetData()
 	if err != nil {
-		return ByteTexture{}, fmt.Errorf("unable to create ByteTexture: %s", err)
+		return ImageData{}, fmt.Errorf("unable to create ImageData: %s", err)
 	}
-	return ByteTexture{
+	return ImageData{
 		data:   data,
 		Width:  surface.GetWidth(),
 		Height: surface.GetHeight(),
 	}, nil
 }
 
-// ByteTextureFromPNG creates a new ByteTexture from a png file.
-func ByteTextureFromPNG(filePath string) (ByteTexture, error) {
+// ImageDataFromPNG creates a new ImageData from a png file.
+func ImageDataFromPNG(filePath string) (ImageData, error) {
 	surface, err := NewSurfaceFromPNG(filePath)
 	if err != nil {
-		return ByteTexture{}, fmt.Errorf("unable to create surface for ByteTexture: %s", err)
+		return ImageData{}, fmt.Errorf("unable to create surface for ImageData: %s", err)
 	}
-	return ByteTextureFromSurface(surface)
+	return ImageDataFromSurface(surface)
 }
 
 // GetPixel gets the value for a single pixel.
 // Values returned are normalized 0-1 for r, g, b, a.
-func (b *ByteTexture) GetPixel(x, y int) (float64, float64, float64, float64) {
+func (b *ImageData) GetPixel(x, y int) (float64, float64, float64, float64) {
 	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
 		return 0, 0, 0, 1
 	}
@@ -61,7 +61,7 @@ func (b *ByteTexture) GetPixel(x, y int) (float64, float64, float64, float64) {
 // GetPixelClamped gets the value for a single pixel.
 // Values returned are normalized 0-1 for r, g, b, a.
 // If x and y are beyond any edge of the image, it will return the edge pixel value.
-func (b *ByteTexture) GetPixelClamped(x, y, w, h int) (float64, float64, float64, float64) {
+func (b *ImageData) GetPixelClamped(x, y, w, h int) (float64, float64, float64, float64) {
 	if x < 0 {
 		x = 0
 	}
@@ -79,9 +79,9 @@ func (b *ByteTexture) GetPixelClamped(x, y, w, h int) (float64, float64, float64
 
 // GetPixelInt gets the value for a single pixel.
 // Values returned are 0-255 for r, g, b, a
-func (b *ByteTexture) GetPixelInt(x, y int) (int, int, int, int) {
+func (b *ImageData) GetPixelInt(x, y int) (int, int, int, int) {
 	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
-		return 0, 0, 0, 1
+		return 0, 0, 0, 0
 	}
 	index := (y*b.Width + x) * 4
 	return int(b.data[index+2]), int(b.data[index+1]), int(b.data[index]), int(b.data[index+3])
@@ -90,7 +90,7 @@ func (b *ByteTexture) GetPixelInt(x, y int) (int, int, int, int) {
 // GetPixelIntClamped gets the value for a single pixel.
 // Values returned are normalized 0-1 for r, g, b, a.
 // If x and y are beyond any edge of the image, it will return the edge pixel value.
-func (b *ByteTexture) GetPixelIntClamped(x, y, w, h int) (int, int, int, int) {
+func (b *ImageData) GetPixelIntClamped(x, y, w, h int) (int, int, int, int) {
 	if x < 0 {
 		x = 0
 	}
@@ -108,7 +108,7 @@ func (b *ByteTexture) GetPixelIntClamped(x, y, w, h int) (int, int, int, int) {
 
 // SetPixel sets the value for a single pixel.
 // Params are normalized 0-1 for r, g, b, a.
-func (b *ByteTexture) SetPixel(x, y int, red, green, blue, alpha float64) {
+func (b *ImageData) SetPixel(x, y int, red, green, blue, alpha float64) {
 	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
 		return
 	}
@@ -121,7 +121,7 @@ func (b *ByteTexture) SetPixel(x, y int, red, green, blue, alpha float64) {
 
 // SetPixelInt sets the value for a single pixel.
 // Params are 0-255 for r, g, b, a
-func (b *ByteTexture) SetPixelInt(x, y int, red, green, blue, alpha int) {
+func (b *ImageData) SetPixelInt(x, y int, red, green, blue, alpha int) {
 	if x < 0 || x >= b.Width || y < 0 || y >= b.Height {
 		return
 	}
@@ -132,10 +132,10 @@ func (b *ByteTexture) SetPixelInt(x, y int, red, green, blue, alpha int) {
 	b.data[index+3] = byte(alpha)
 }
 
-// CopyToSurface copies this ByteTexture's data into a surface
-// The surface must have the same dimensions as this ByteData.
+// CopyToSurface copies this ImageData's data into a surface
+// The surface must have the same dimensions as this ImageData
 // A good use case for this is setting thousands of individual pixels.
-// Create a ByteTexture, set the pixels, copy it back to the surface.
+// Create an ImageData, set the pixels, copy it back to the surface.
 // There is a few ms overhead for getting/setting the data. 2-3ms for a 1600x800 image.
 // But setting the pixels is blazingly faster than drawing 1x1 rectangles.
 // 100k pixels can be set in less than 2ms with this method,
@@ -143,13 +143,13 @@ func (b *ByteTexture) SetPixelInt(x, y int, red, green, blue, alpha int) {
 // But for a small amount of pixels (<10k), it can be faster to draw 1x1 rects.
 // Also note that this method will do no antialiasing ever,
 // whereas you can get that when drawing rects (for better or worse).
-func (b *ByteTexture) CopyToSurface(surface *Surface) error {
+func (b *ImageData) CopyToSurface(surface *Surface) error {
 	if surface.GetWidth() != b.Width || surface.GetHeight() != b.Height {
-		return errors.New("surface must have same dimensions as the bytedata")
+		return errors.New("surface must have same dimensions as the imagedata")
 	}
 	err := surface.SetData(b.data)
 	if err != nil {
-		return fmt.Errorf("unable to copy ByteTexture: %s", err)
+		return fmt.Errorf("unable to copy ImageData: %s", err)
 	}
 	return nil
 }

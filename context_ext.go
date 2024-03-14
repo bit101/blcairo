@@ -2,6 +2,8 @@
 package cairo
 
 import (
+	"log"
+
 	"github.com/bit101/bitlib/blcolor"
 	"github.com/bit101/bitlib/random"
 )
@@ -166,4 +168,16 @@ func (c *Context) ProcessPixels(pixelFunc func(context *Context, x, y float64)) 
 			pixelFunc(c, x, y)
 		}
 	}
+}
+
+// PaintImage loads an image from an external png file and paints the context with that image.
+func (c *Context) PaintImage(imagePath string) {
+	surface, err := NewSurfaceFromPNG(imagePath)
+	if err != nil {
+		log.Fatalf("could not load image: %s", err)
+	}
+	c.SetSourceSurface(surface, 0, 0)
+	c.Paint()
+	c.SetSourceBlack()
+
 }
