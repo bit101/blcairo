@@ -171,13 +171,26 @@ func (c *Context) ProcessPixels(pixelFunc func(context *Context, x, y float64)) 
 }
 
 // PaintImage loads an image from an external png file and paints the context with that image.
-func (c *Context) PaintImage(imagePath string) {
+func (c *Context) PaintImage(imagePath string, x, y float64) {
 	surface, err := NewSurfaceFromPNG(imagePath)
 	if err != nil {
 		log.Fatalf("could not load image: %s", err)
 	}
-	c.SetSourceSurface(surface, 0, 0)
+	c.Save()
+	c.SetSourceSurface(surface, x, y)
+	c.Paint()
+	c.Restore()
+}
+
+// PaintImageCentered loads an image from an external png file and paints the context with that image.
+func (c *Context) PaintImageCentered(imagePath string, x, y float64) {
+	surface, err := NewSurfaceFromPNG(imagePath)
+	if err != nil {
+		log.Fatalf("could not load image: %s", err)
+	}
+	c.Save()
+	c.SetSourceSurface(surface, x-surface.GetWidthF()/2, y-surface.GetHeightF()/2)
 	c.Paint()
 	c.SetSourceBlack()
-
+	c.Restore()
 }

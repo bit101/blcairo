@@ -354,3 +354,9 @@ func (c *Context) Noisify(amount float64) {
 	}
 	srcIm.CopyToSurface(c.Surface)
 }
+
+// DrawContext sets the source of this context to the surface of another context and paints.
+func (c *Context) DrawContext(src *Context, x, y float64) {
+	c.SetSourceSurface(src.Surface, x, y)
+	c.Paint()
+}
