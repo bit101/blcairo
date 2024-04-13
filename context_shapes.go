@@ -594,6 +594,13 @@ func (c *Context) StrokeSegmentObject(seg *geom.Segment) {
 	c.StrokeLine(seg.X0, seg.Y0, seg.X1, seg.Y1)
 }
 
+// StrokeSegmentList strokes a list of line segments.
+func (c *Context) StrokeSegmentList(segs []*geom.Segment) {
+	for _, seg := range segs {
+		c.StrokeSegmentObject(seg)
+	}
+}
+
 // LineThrough strokes a line that extends a certain distance beyond two points.
 func (c *Context) LineThrough(x0, y0, x1, y1, overlap float64) {
 	c.Save()
@@ -1075,9 +1082,23 @@ func (c *Context) StrokeTriangleObject(t *geom.Triangle) {
 	c.StrokePath(t.Points(), true)
 }
 
+// StrokeTriangleList strokes a triangle.
+func (c *Context) StrokeTriangleList(triangles []*geom.Triangle) {
+	for _, t := range triangles {
+		c.StrokeTriangleObject(t)
+	}
+}
+
 // FillTriangleObject fills a triangle.
 func (c *Context) FillTriangleObject(t *geom.Triangle) {
 	c.FillPath(t.Points())
+}
+
+// FillTriangleList strokes a triangle.
+func (c *Context) FillTriangleList(triangles []*geom.Triangle) {
+	for _, t := range triangles {
+		c.FillTriangleObject(t)
+	}
 }
 
 // Tube draws the outline of a tube connecting two circles.
