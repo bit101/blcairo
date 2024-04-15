@@ -187,14 +187,14 @@ func (c *Context) StrokeCircleObject(circle *geom.Circle) {
 }
 
 // StrokeCircles strokes each circle object in a list.
-func (c *Context) StrokeCircles(circles []*geom.Circle) {
+func (c *Context) StrokeCircles(circles geom.CircleList) {
 	for _, circle := range circles {
 		c.StrokeCircleObject(circle)
 	}
 }
 
 // FillCircles fills each circle object in a list.
-func (c *Context) FillCircles(circles []*geom.Circle) {
+func (c *Context) FillCircles(circles geom.CircleList) {
 	for _, circle := range circles {
 		c.FillCircleObject(circle)
 	}
@@ -297,19 +297,19 @@ func (c *Context) FractalLine(x1, y1, x2, y2, roughness float64, iterations int)
 	dy := y2 - y1
 	offset := math.Sqrt(dx*dx+dy*dy) * 0.15
 
-	var path []*geom.Point
-	path = append(path, geom.NewPoint(x1, y1))
-	path = append(path, geom.NewPoint(x2, y2))
+	path := geom.NewPointList()
+	path.AddXY(x1, y1)
+	path.AddXY(x2, y2)
 
 	for i := 0; i < iterations; i++ {
-		var newPath []*geom.Point
+		newPath := geom.NewPointList()
 		for j, point := range path {
-			newPath = append(newPath, geom.NewPoint(point.X, point.Y))
+			newPath.AddXY(point.X, point.Y)
 			if j < len(path)-1 {
 				mid := geom.MidPoint(point, path[j+1])
 				mid.X += random.FloatRange(-offset, offset)
 				mid.Y += random.FloatRange(-offset, offset)
-				newPath = append(newPath, mid)
+				newPath.Add(mid)
 			}
 		}
 		offset *= roughness
@@ -498,13 +498,13 @@ func (c *Context) Heart(x, y, w, h, r float64) {
 	c.Save()
 	c.Translate(x, y)
 	c.Rotate(r)
-	var path []*geom.Point
+	path := geom.NewPointList()
 	res := math.Sqrt(w * h)
 	for i := 0.0; i < res; i++ {
 		a := math.Pi * 2 * i / res
 		x := w * math.Pow(math.Sin(a), 3.0)
 		y := h * (0.8125*math.Cos(a) - 0.3125*math.Cos(2.0*a) - 0.125*math.Cos(3.0*a) - 0.0625*math.Cos(4.0*a))
-		path = append(path, geom.NewPoint(x, -y))
+		path.AddXY(x, -y)
 	}
 	c.Path(path)
 	c.Restore()
@@ -595,7 +595,7 @@ func (c *Context) StrokeSegmentObject(seg *geom.Segment) {
 }
 
 // StrokeSegmentList strokes a list of line segments.
-func (c *Context) StrokeSegmentList(segs []*geom.Segment) {
+func (c *Context) StrokeSegmentList(segs geom.SegmentList) {
 	for _, seg := range segs {
 		c.StrokeSegmentObject(seg)
 	}
@@ -619,7 +619,7 @@ func (c *Context) LineThrough(x0, y0, x1, y1, overlap float64) {
 ////////////////////
 
 // MultiCurve draws a piecewise bezier curve through a series of points.
-func (c *Context) MultiCurve(points []*geom.Point) {
+func (c *Context) MultiCurve(points geom.PointList) {
 	c.MoveTo(points[0].X, points[0].Y)
 	mid := geom.MidPoint(points[0], points[1])
 	c.LineTo(mid.X, mid.Y)
@@ -637,7 +637,7 @@ func (c *Context) MultiCurve(points []*geom.Point) {
 }
 
 // StrokeMultiCurve draws a multi curve and strokes it.
-func (c *Context) StrokeMultiCurve(points []*geom.Point) {
+func (c *Context) StrokeMultiCurve(points geom.PointList) {
 	c.MultiCurve(points)
 	c.Stroke()
 }
@@ -647,7 +647,7 @@ func (c *Context) StrokeMultiCurve(points []*geom.Point) {
 ////////////////////
 
 // MultiLoop draws a closed piecewise bezier curve through a series of points.
-func (c *Context) MultiLoop(points []*geom.Point) {
+func (c *Context) MultiLoop(points geom.PointList) {
 	pA := points[0]
 	pZ := points[len(points)-1]
 	mid1 := geom.MidPoint(pZ, pA)
@@ -662,13 +662,13 @@ func (c *Context) MultiLoop(points []*geom.Point) {
 }
 
 // FillMultiLoop draws a filled, smooth, closed curve between a set of points.
-func (c *Context) FillMultiLoop(points []*geom.Point) {
+func (c *Context) FillMultiLoop(points geom.PointList) {
 	c.MultiLoop(points)
 	c.Fill()
 }
 
 // StrokeMultiLoop draws a stroked, smooth, closed curve between a set of points.
-func (c *Context) StrokeMultiLoop(points []*geom.Point) {
+func (c *Context) StrokeMultiLoop(points geom.PointList) {
 	c.MultiLoop(points)
 	c.Stroke()
 }
@@ -678,20 +678,20 @@ func (c *Context) StrokeMultiLoop(points []*geom.Point) {
 ////////////////////
 
 // Path draws a series of lines through a set of points.
-func (c *Context) Path(points []*geom.Point) {
+func (c *Context) Path(points geom.PointList) {
 	for _, point := range points {
 		c.LineTo(point.X, point.Y)
 	}
 }
 
 // FillPath draws a path and fills it.
-func (c *Context) FillPath(points []*geom.Point) {
+func (c *Context) FillPath(points geom.PointList) {
 	c.Path(points)
 	c.Fill()
 }
 
 // StrokePath draws a path and strokes it.
-func (c *Context) StrokePath(points []*geom.Point, close bool) {
+func (c *Context) StrokePath(points geom.PointList, close bool) {
 	c.Path(points)
 	if close {
 		c.ClosePath()
@@ -714,7 +714,7 @@ func (c *Context) FillPoint(x, y, r float64) {
 }
 
 // Points draws and fills a circle at each point in a list of points.
-func (c *Context) Points(points []*geom.Point, radius float64) {
+func (c *Context) Points(points geom.PointList, radius float64) {
 	for _, point := range points {
 		c.FillPoint(point.X, point.Y, radius)
 	}
@@ -722,7 +722,7 @@ func (c *Context) Points(points []*geom.Point, radius float64) {
 
 // LabelPoints draws a single char near each of a list of points, incrementing the first char by one each time.
 // Makes no correction for chars higher than 0-9, a-z or A-Z at this point
-func (c *Context) LabelPoints(points []*geom.Point, numeric bool) {
+func (c *Context) LabelPoints(points geom.PointList, numeric bool) {
 
 	if numeric {
 		num := 0
@@ -1083,7 +1083,7 @@ func (c *Context) StrokeTriangleObject(t *geom.Triangle) {
 }
 
 // StrokeTriangleList strokes a triangle.
-func (c *Context) StrokeTriangleList(triangles []*geom.Triangle) {
+func (c *Context) StrokeTriangleList(triangles geom.TriangleList) {
 	for _, t := range triangles {
 		c.StrokeTriangleObject(t)
 	}
@@ -1095,7 +1095,7 @@ func (c *Context) FillTriangleObject(t *geom.Triangle) {
 }
 
 // FillTriangleList strokes a triangle.
-func (c *Context) FillTriangleList(triangles []*geom.Triangle) {
+func (c *Context) FillTriangleList(triangles geom.TriangleList) {
 	for _, t := range triangles {
 		c.FillTriangleObject(t)
 	}
