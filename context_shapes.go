@@ -383,7 +383,7 @@ func (c *Context) Checkerboard(x, y, w, h, resX, resY float64, topLeftFilled boo
 
 // DrawAxes draws a vertical and horizontal line for each axis at the origin.
 func (c *Context) DrawAxes(lineWidth float64) {
-	origLineWidth := c.GetLineWidth()
+	c.Save()
 	c.SetLineWidth(lineWidth)
 	w, h := c.Size()
 	c.MoveTo(0, -h)
@@ -391,7 +391,7 @@ func (c *Context) DrawAxes(lineWidth float64) {
 	c.MoveTo(-w, 0)
 	c.LineTo(w, 0)
 	c.Stroke()
-	c.SetLineWidth(origLineWidth)
+	c.Restore()
 }
 
 // DrawOrigin draws a "plus" mark at the origin, with the given size.
@@ -1104,8 +1104,6 @@ func (c *Context) FillTriangleList(triangles geom.TriangleList) {
 // Tube draws the outline of a tube connecting two circles.
 // You can then manually draw one or both ends of the tube by drawing one or both circles.
 func (c *Context) Tube(c0, c1 *geom.Circle) {
-	c.SetLineWidth(0.25)
-	c.SetLineWidth(1)
 	seg0 := geom.TangentSegmentToCircles(c0, c1, -1)
 	seg1 := geom.TangentSegmentToCircles(c0, c1, 1)
 

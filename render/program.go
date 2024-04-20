@@ -86,6 +86,12 @@ func (p *Program) Render(frames string) {
 	setComplete()
 }
 
+// RenderAndPlayVideo renders the program to a video file using the given frames directory and output filename
+func (p *Program) RenderAndPlayVideo(frames, fileName string) {
+	p.RenderVideo(frames, fileName)
+	PlayVideo(fileName)
+}
+
 // RenderVideo renders the program to a video file using the given frames directory and output filename
 func (p *Program) RenderVideo(frames, fileName string) {
 	p.Render(frames)

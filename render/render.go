@@ -17,6 +17,12 @@ var startTime time.Time
 // FrameFunc is the interface for a function that renders a single frame.
 type FrameFunc func(*cairo.Context, float64, float64, float64)
 
+// CreateAndViewImage sets up the rendering of a single image.
+func CreateAndViewImage(width, height float64, path string, frameFunc FrameFunc, percent float64) {
+	Image(width, height, path, frameFunc, percent)
+	ViewImage(path)
+}
+
 // Image sets up the rendering of a single image.
 func Image(width, height float64, path string, frameFunc FrameFunc, percent float64) {
 	fmt.Println("Generating image...")

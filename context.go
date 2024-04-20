@@ -24,12 +24,15 @@ type Context struct {
 
 // NewContext creates a new cairo context.
 func NewContext(surface *Surface) *Context {
-	return &Context{
+	context := &Context{
 		C.cairo_create(surface.surface),
 		surface,
 		float64(surface.GetWidth()),
 		float64(surface.GetHeight()),
 	}
+	context.SetLineWidth(0.5)
+	context.BlackOnWhite()
+	return context
 }
 
 // Rectangle rectangle struct
