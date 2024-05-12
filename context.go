@@ -111,6 +111,18 @@ func (c *Context) GetSource() *Pattern {
 	return &Pattern{C.cairo_get_source(c.context)}
 }
 
+// GetSourceRGB gets the r, g, b values of the current source pattern.
+func (c *Context) GetSourceRGB() (float64, float64, float64) {
+	r, g, b, _ := c.GetSourceRGBA()
+	return r, g, b
+}
+
+// GetSourceRGBA gets the r, g, b, a values of the current source pattern.
+func (c *Context) GetSourceRGBA() (float64, float64, float64, float64) {
+	pattern := &Pattern{C.cairo_get_source(c.context)}
+	return pattern.GetRGBA()
+}
+
 // SetSourceRGB sets the r, g, b values to draw with.
 func (c *Context) SetSourceRGB(red, green, blue float64) {
 	C.cairo_set_source_rgb(c.context, C.double(red), C.double(green), C.double(blue))
