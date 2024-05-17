@@ -1014,6 +1014,23 @@ func (c *Context) FillStar(x, y, r0, r1 float64, points int, rotation float64) {
 	c.Fill()
 }
 
+//////////////////////////////
+// Starfield
+//////////////////////////////
+
+// Starfield draws a starfield.
+func (c *Context) Starfield(count int, maxRadius float64) {
+	random.Seed(0)
+	c.Save()
+	r, g, b := c.GetSourceRGB()
+	c.SetSourceRGBA(r, g, b, 0.75)
+	for range count {
+		p := geom.RandomPointInRect(0, 0, c.Width, c.Height)
+		c.FillCircle(p.X, p.Y, random.Power(0.5, maxRadius, 4))
+	}
+	c.Restore()
+}
+
 // //////////////////
 // TearDrop
 // //////////////////
