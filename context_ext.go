@@ -34,6 +34,15 @@ func (c *Context) Blueprint() {
 // CLEAR
 ////////////////////
 
+// ClearClear clears the context to full transparency.
+func (c *Context) ClearClear() {
+	c.Save()
+	// todo: set identity transform
+	c.SetOperator(OperatorClear)
+	c.Paint()
+	c.Restore()
+}
+
 // ClearRGB clears the context to the given rgb color.
 func (c *Context) ClearRGB(r float64, g float64, b float64) {
 	c.Save()
