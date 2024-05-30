@@ -363,15 +363,15 @@ func (c *Context) DrawContext(src *Context, x, y float64) {
 
 // FilterChannels selectively filters out each rgb channel by scaling it from 0 to 1.
 // Example: to get only the red channel, context.FilterChannels(1, 0, 0)
-func (c *Context) FilterChannels(r, g, b float64) {
-	data, _ := c.Surface.GetData()
+func (s *Surface) FilterChannels(r, g, b float64) {
+	data, _ := s.GetData()
 	for i := 0; i < len(data); i += 4 {
 		data[i] = byte(float64(data[i]) * b)
 		data[i+1] = byte(float64(data[i+1]) * g)
 		data[i+2] = byte(float64(data[i+2]) * r)
 		data[i+3] = 128
 	}
-	c.Surface.SetData(data)
+	s.SetData(data)
 }
 
 // ColorFringe applies a chromatic abberation effect, seperating the rgb color channels horizontally by a given amount.
@@ -388,19 +388,19 @@ func (c *Context) ColorFringe(offset float64) {
 
 	// draw the red channel shifted right
 	s.SetData(data)
-	c.FilterChannels(1, 0, 0)
+	s.FilterChannels(1, 0, 0)
 	c.SetSourceSurface(s, offset, 0)
 	c.Paint()
 
 	// draw the green channel, no shift
 	s.SetData(data)
-	c.FilterChannels(0, 1, 0)
+	s.FilterChannels(0, 1, 0)
 	c.SetSourceSurface(s, 0, 0)
 	c.Paint()
 
 	// draw the blue channel shifted left
 	s.SetData(data)
-	c.FilterChannels(0, 0, 1)
+	s.FilterChannels(0, 0, 1)
 	c.SetSourceSurface(s, -offset, 0)
 	c.Paint()
 
