@@ -185,10 +185,7 @@ func (c *Context) PaintImage(imagePath string, x, y float64) {
 	if err != nil {
 		log.Fatalf("could not load image: %s", err)
 	}
-	c.Save()
-	c.SetSourceSurface(surface, x, y)
-	c.Paint()
-	c.Restore()
+	c.DrawSurface(surface, x, y)
 }
 
 // PaintImageCentered loads an image from an external png file and paints the context with that image.
@@ -200,6 +197,28 @@ func (c *Context) PaintImageCentered(imagePath string, x, y float64) {
 	c.Save()
 	c.SetSourceSurface(surface, x-surface.GetWidthF()/2, y-surface.GetHeightF()/2)
 	c.Paint()
+	// not sure why this next line is here, but I think it fixed something.
+	// may need to add to other methods?
 	c.SetSourceBlack()
+	c.Restore()
+}
+
+// DrawSurface draws the given surface onto this context with default composite operation.
+func (c *Context) DrawSurface(surface *Surface, x, y float64) {
+	c.Save()
+	c.SetSourceSurface(surface, x, y)
+	c.Paint()
+	c.Restore()
+}
+
+// DrawSurfaceUnder draws the given surface onto this context with the DestOver operation.
+// This draws the surface UNDER any existing content on the surface.
+// If the context is fully opaque, this will have no effect. The new surface only shows through
+// in areas where the context has transparency.
+func (c *Context) DrawSurfaceUnder(surface *Surface, x, y float64) {
+	c.Save()
+	c.SetOperator(OperatorDestOver)
+	c.SetSourceSurface(surface, x, y)
+	c.Paint()
 	c.Restore()
 }
