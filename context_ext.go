@@ -222,3 +222,16 @@ func (c *Context) DrawSurfaceUnder(surface *Surface, x, y float64) {
 	c.Paint()
 	c.Restore()
 }
+
+// DrawProgress draws a progress bar on the bottom of the image. Useful for rendering animations.
+func (c *Context) DrawProgress(percent float64) {
+	w := c.Width
+	h := c.Height
+	c.Save()
+	c.SetMatrix(*NewMatrix())
+	c.SetSourceWhite()
+	c.FillRectangle(0, h-6, w, 6)
+	c.SetSourceBlack()
+	c.FillRectangle(1, h-5, (w-2)*percent, 4)
+	c.Restore()
+}
