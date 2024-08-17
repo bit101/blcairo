@@ -124,6 +124,7 @@ func TestSaveAndRestore(t *testing.T) {
 
 func TestOperator(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 
 	context.SetSourceRGB(1, 0, 0)
 	context.Rectangle(100, 100, 100, 100)
@@ -224,6 +225,9 @@ func TestSetSourceRGB(t *testing.T) {
 
 func TestSetSourceRGBA(t *testing.T) {
 	surface, context := createContext()
+
+	context.ClearClear()
+
 	context.SetSourceRGBA(1, 0, 0, 0)
 	context.Rectangle(0, 0, 10, 10)
 	context.Fill()
@@ -264,6 +268,7 @@ func TestSetSourceRGBA(t *testing.T) {
 
 func TestLineWidth(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 
 	context.SetLineWidth(10)
 	w := context.GetLineWidth()
@@ -304,6 +309,7 @@ func TestLineWidth(t *testing.T) {
 
 func TestScale(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 	context.Scale(10, 10)
 	context.Rectangle(1, 1, 100, 100)
 	context.Fill()
@@ -329,6 +335,7 @@ func TestScale(t *testing.T) {
 
 func TestRotate(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 	context.Translate(50, 50)
 	context.Rotate(math.Pi / 4)
 	context.Rectangle(-50, -50, 100, 100)
@@ -355,6 +362,7 @@ func TestRotate(t *testing.T) {
 
 func TestCurveTo(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 	context.SetLineWidth(20)
 	context.MoveTo(0, 400)
 	context.CurveTo(0, 0, 400, 0, 400, 400)
@@ -389,6 +397,7 @@ func TestCurveTo(t *testing.T) {
 
 func TestArcs(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 	context.SetLineWidth(20)
 	context.Arc(200, 200, 100, 0, math.Pi, false)
 	context.Stroke()
@@ -469,6 +478,7 @@ func TestClosePath(t *testing.T) {
 
 func TestStrokePreserve(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 	context.Rectangle(100, 100, 100, 100)
 	context.Stroke()
 	context.Fill()
@@ -500,6 +510,7 @@ func TestStrokePreserve(t *testing.T) {
 
 func TestFillPreserve(t *testing.T) {
 	surface, context := createContext()
+	context.ClearClear()
 
 	context.SetLineWidth(20)
 	context.Rectangle(100, 100, 100, 100)
