@@ -4,6 +4,7 @@ package cairo
 import (
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/bit101/bitlib/blmath"
 	"github.com/bit101/bitlib/geom"
@@ -151,6 +152,66 @@ func (c *Context) DrawDoubleArrow(x0, y0, x1, y1, pointSize float64) {
 func (c *Context) StrokeDoubleArrow(x0, y0, x1, y1, pointSize float64) {
 	c.DrawDoubleArrow(x0, y0, x1, y1, pointSize)
 	c.Stroke()
+}
+
+// DimensionLine draws a double-ended arrow between two points
+// and the distance printed in the center, with the given precision.
+func (c *Context) DimensionLine(x0, y0, x1, y1 float64, decimals int) {
+	angle := math.Atan2(y1-y0, x1-x0)
+	dist := math.Hypot(y1-y0, x1-x0)
+	val := strconv.FormatFloat(dist, 'f', decimals, 64)
+	size := c.TextExtents(val)
+
+	if size.Width+10 < dist {
+		xa := x0 + math.Cos(angle)*(dist/2-size.Width/2-5)
+		ya := y0 + math.Sin(angle)*(dist/2-size.Width/2-5)
+		xb := x1 - math.Cos(angle)*(dist/2-size.Width/2-5)
+		yb := y1 - math.Sin(angle)*(dist/2-size.Width/2-5)
+		c.StrokeArrow(xa, ya, x0, y0, 10)
+		c.StrokeArrow(xb, yb, x1, y1, 10)
+		c.FillText(val, (x0+x1)/2-size.Width/2, (y0+y1)/2+size.Height/2)
+	} else {
+		xa := (x0 + x1) / 2
+		ya := (y0 + y1) / 2
+		c.StrokeArrow(xa, ya, x0, y0, 10)
+		c.StrokeArrow(xa, ya, x1, y1, 10)
+		slope := (y1 - y0) / (x1 - x0)
+		// an attempt to make sure the text doesn't overlay the arrow. 95% effective maybe.
+		if slope >= 0 {
+			c.FillText(val, xa+10, ya-10)
+		} else {
+			c.FillText(val, xa+10, ya+10)
+		}
+	}
+}
+
+// DimensionLineString draws a double-ended arrow between two points
+// and a given string in the center.
+func (c *Context) DimensionLineString(x0, y0, x1, y1 float64, str string) {
+	angle := math.Atan2(y1-y0, x1-x0)
+	dist := math.Hypot(y1-y0, x1-x0)
+	size := c.TextExtents(str)
+	if size.Width+10 < dist {
+		xa := x0 + math.Cos(angle)*(dist/2-size.Width/2-5)
+		ya := y0 + math.Sin(angle)*(dist/2-size.Width/2-5)
+		xb := x1 - math.Cos(angle)*(dist/2-size.Width/2-5)
+		yb := y1 - math.Sin(angle)*(dist/2-size.Width/2-5)
+		c.StrokeArrow(xa, ya, x0, y0, 10)
+		c.StrokeArrow(xb, yb, x1, y1, 10)
+		c.FillText(str, (x0+x1)/2-size.Width/2, (y0+y1)/2+size.Height/2)
+	} else {
+		xa := (x0 + x1) / 2
+		ya := (y0 + y1) / 2
+		c.StrokeArrow(xa, ya, x0, y0, 10)
+		c.StrokeArrow(xa, ya, x1, y1, 10)
+		// an attempt to make sure the text doesn't overlay the arrow. 95% effective maybe.
+		slope := (y1 - y0) / (x1 - x0)
+		if slope >= 0 {
+			c.FillText(str, xa+10, ya-10)
+		} else {
+			c.FillText(str, xa+10, ya+10)
+		}
+	}
 }
 
 ////////////////////
