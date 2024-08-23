@@ -25,6 +25,17 @@ func (c *Context) Grayscale() {
 	c.Surface.SetData(data)
 }
 
+// GrayscaleRect turns a portion of the image grayscale.
+func (c *Context) GrayscaleRect(rx, ry, rw, rh float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Grayscale()
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Threshold sets any pixel whose average value is below t to the given rgba value.
 func (c *Context) Threshold(t, r, g, b, a float64) {
 	data, _ := c.Surface.GetData()
@@ -41,6 +52,17 @@ func (c *Context) Threshold(t, r, g, b, a float64) {
 		}
 	}
 	c.Surface.SetData(data)
+}
+
+// ThresholdRect performs a threshold operation on a portion of an image.
+func (c *Context) ThresholdRect(rx, ry, rw, rh, t, r, g, b, a float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Threshold(t, r, g, b, a)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // ReverseThreshold sets any pixel whose average value is greater than t to the given rgba value.
@@ -61,6 +83,17 @@ func (c *Context) ReverseThreshold(t, r, g, b, a float64) {
 	c.Surface.SetData(data)
 }
 
+// ReverseThresholdRect performs a reverse threshold operation on a portion of an images.
+func (c *Context) ReverseThresholdRect(rx, ry, rw, rh, t, r, g, b, a float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.ReverseThreshold(t, r, g, b, a)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Quantize reduces the number of colors in an image.
 // Technically, it quantizes the values of each pixel separately,
 // so the result will have more than t colors.
@@ -76,6 +109,17 @@ func (c *Context) Quantize(t int) {
 	c.Surface.SetData(data)
 }
 
+// QuantizeRect quantizes a portion of an image.
+func (c *Context) QuantizeRect(rx, ry, rw, rh float64, t int) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Quantize(t)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Gamma does gamma correction on an image.
 // gamma values less than 1.0 darken the image, greater than 1.0 lighten it.
 func (c *Context) Gamma(gamma float64) {
@@ -89,7 +133,17 @@ func (c *Context) Gamma(gamma float64) {
 		}
 	}
 	c.Surface.SetData(data)
+}
 
+// GammaRect gamma corrects a portion of an image.
+func (c *Context) GammaRect(rx, ry, rw, rh, gamma float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Gamma(gamma)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // Invert inverts the colors of an image.
@@ -101,6 +155,17 @@ func (c *Context) Invert() {
 		}
 	}
 	c.Surface.SetData(data)
+}
+
+// InvertRect inverts the colors in a portion of an image.
+func (c *Context) InvertRect(rx, ry, rw, rh float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Invert()
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // Contrast changes the balance of dark and light areas in an image.
@@ -119,6 +184,17 @@ func (c *Context) Contrast(amt float64) {
 	c.Surface.SetData(data)
 }
 
+// ContrastRect adjusts the contrast in a portion of an image.
+func (c *Context) ContrastRect(rx, ry, rw, rh, amt float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Contrast(amt)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Brightness adjusts the brightness of an image.
 func (c *Context) Brightness(amt float64) {
 	brightness := 255.0 * amt
@@ -131,6 +207,17 @@ func (c *Context) Brightness(amt float64) {
 		}
 	}
 	c.Surface.SetData(data)
+}
+
+// BrightnessRect adjusts the brightness of a portion of an image.
+func (c *Context) BrightnessRect(rx, ry, rw, rh, amt float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Brightness(amt)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // Tint tints an image.
@@ -157,10 +244,32 @@ func (c *Context) Tint(r, g, b, t float64) {
 	c.Surface.SetData(data)
 }
 
+// TintRect tints a portion of an image.
+func (c *Context) TintRect(rx, ry, rw, rh, r, g, b, t float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Tint(r, g, b, t)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Hue tints an image to a given hue
 func (c *Context) Hue(hue, t float64) {
 	color := blcolor.HSV(hue, 1, 1)
 	c.Tint(color.R, color.G, color.B, t)
+}
+
+// HueRect tints a portion of an image to a given hue.
+func (c *Context) HueRect(rx, ry, rw, rh, hue, t float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Hue(hue, t)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // Blur executes a box blur.
@@ -211,6 +320,17 @@ func (c *Context) Blur(radius int) {
 	srcIm.CopyToSurface(c.Surface)
 }
 
+// BlurRect executes a box blur on a portion of an image.
+func (c *Context) BlurRect(rx, ry, rw, rh float64, radius int) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Blur(radius)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // GaussianBlur executes a Gaussian blur.
 func (c *Context) GaussianBlur(radius int) {
 	if radius < 1 {
@@ -230,7 +350,7 @@ func (c *Context) GaussianBlur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, a := 0.0, 0.0, 0.0, 0.0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, aa := srcIm.GetPixelClamped(x+j, y, w, h)
+				rr, gg, bb, aa := srcIm.GetPixelClamped(x+j, y, 0, 0, w, h)
 				k := kernel[j+radius]
 				r += rr * k
 				g += gg * k
@@ -247,7 +367,7 @@ func (c *Context) GaussianBlur(radius int) {
 		for y := 0; y < h; y++ {
 			r, g, b, a := 0.0, 0.0, 0.0, 0.0
 			for j := -radius; j <= radius; j++ {
-				rr, gg, bb, aa := dstIm.GetPixelClamped(x, y+j, w, h)
+				rr, gg, bb, aa := dstIm.GetPixelClamped(x, y+j, 0, 0, w, h)
 				k := kernel[j+radius]
 				r += rr * k
 				g += gg * k
@@ -259,6 +379,17 @@ func (c *Context) GaussianBlur(radius int) {
 	}
 	// the final pass put the bytes in src, so we copy that back.
 	srcIm.CopyToSurface(c.Surface)
+}
+
+// GaussianBlurRect executes a Gaussian blur on a portion of an image.
+func (c *Context) GaussianBlurRect(rx, ry, rw, rh float64, radius int) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.GaussianBlur(radius)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 func getGaussKernel(size int) []float64 {
@@ -277,6 +408,32 @@ func getGaussKernel(size int) []float64 {
 	return kernel
 }
 
+// Pixelate pixelates an image.
+func (c *Context) Pixelate(size int) {
+	srcIm, _ := ImageDataFromSurface(c.Surface)
+	w := int(c.Width)
+	h := int(c.Height)
+
+	for x := 0; x < w; x += size {
+		for y := 0; y < h; y += size {
+			rr, gg, bb, aa := srcIm.GetPixelClamped(x, y, 0, 0, w, h)
+			c.SetSourceRGBA(rr, gg, bb, aa)
+			c.FillRectangle(float64(x), float64(y), float64(size), float64(size))
+		}
+	}
+}
+
+// PixelateRect pixelates a portion of an image.
+func (c *Context) PixelateRect(rx, ry, rw, rh float64, size int) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Pixelate(size)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // Sharpen executes a sharpen filter.
 func (c *Context) Sharpen() {
 	srcIm, _ := ImageDataFromSurface(c.Surface)
@@ -291,7 +448,7 @@ func (c *Context) Sharpen() {
 			r, g, b := 0.0, 0.0, 0.0
 			for i := -1; i <= 1; i++ {
 				for j := -1; j <= 1; j++ {
-					rr, gg, bb, _ := srcIm.GetPixelClamped(x+i, y+j, w, h)
+					rr, gg, bb, _ := srcIm.GetPixelClamped(x+i, y+j, 0, 0, w, h)
 					r += rr * kernel[i+1][j+1]
 					g += gg * kernel[i+1][j+1]
 					b += bb * kernel[i+1][j+1]
@@ -304,6 +461,17 @@ func (c *Context) Sharpen() {
 		}
 	}
 	dstIm.CopyToSurface(c.Surface)
+}
+
+// SharpenRect sharpens a portion of an image.
+func (c *Context) SharpenRect(rx, ry, rw, rh float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Sharpen()
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // MapGradient maps the brightness values in an image to a gradient between two colors.
@@ -322,6 +490,17 @@ func (c *Context) MapGradient(col0, col1 blcolor.Color) {
 	srcIm.CopyToSurface(c.Surface)
 }
 
+// MapGradientRect performs a map gradient operation on a portion of an image.
+func (c *Context) MapGradientRect(rx, ry, rw, rh float64, col0, col1 blcolor.Color) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.MapGradient(col0, col1)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
+}
+
 // MapHue maps the brightness values in an image to a gradient between two hues.
 func (c *Context) MapHue(hue0, hue1 float64) {
 	w := int(c.Width)
@@ -336,6 +515,17 @@ func (c *Context) MapHue(hue0, hue1 float64) {
 		}
 	}
 	srcIm.CopyToSurface(c.Surface)
+}
+
+// MapHueRect performs a map hue operation on a portion of an image.
+func (c *Context) MapHueRect(rx, ry, rw, rh, hue0, hue1 float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.MapHue(hue0, hue1)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // Noisify adds noise to an image.
@@ -353,6 +543,17 @@ func (c *Context) Noisify(amount float64) {
 		}
 	}
 	srcIm.CopyToSurface(c.Surface)
+}
+
+// NoisifyRect applies noise to a portion of an image.
+func (c *Context) NoisifyRect(rx, ry, rw, rh, amount float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.Noisify(amount)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
 
 // DrawContext sets the source of this context to the surface of another context and paints.
@@ -405,4 +606,15 @@ func (c *Context) ColorFringe(offset float64) {
 	c.Paint()
 
 	c.Restore()
+}
+
+// ColorFringeRect performs a color fringe operation on a portion of an image.
+func (c *Context) ColorFringeRect(rx, ry, rw, rh, offset float64) {
+	s := NewSurface(rw, rh)
+	context := NewContext(s)
+	context.SetSourceSurface(c.Surface, -rx, -ry)
+	context.Paint()
+	context.ColorFringe(offset)
+	c.SetSourceSurface(s, rx, ry)
+	c.Paint()
 }
