@@ -31,7 +31,9 @@ func NewContext(surface *Surface) *Context {
 		float64(surface.GetHeight()),
 	}
 	context.SetLineWidth(0.5)
-	context.BlackOnWhite()
+	// removed the following line because it ruined surfaces created from a png.
+	// not sure if it will break something else later.
+	// context.BlackOnWhite()
 	return context
 }
 
