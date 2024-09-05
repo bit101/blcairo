@@ -1137,6 +1137,18 @@ func (c *Context) FillText(text string, x, y float64) {
 	c.Restore()
 }
 
+// FillTextCentered fills text, centered on the x and y axes.
+func (c *Context) FillTextCentered(text string, x, y float64) {
+	extents := c.TextExtents(text)
+	c.FillText(text, x-extents.Width/2, y-extents.Height/2)
+}
+
+// FillTextCenteredX fills text, centered on the x axis only.
+func (c *Context) FillTextCenteredX(text string, x, y float64) {
+	extents := c.TextExtents(text)
+	c.FillText(text, x-extents.Width/2, y)
+}
+
 // StrokeText draws text
 func (c *Context) StrokeText(text string, x, y float64) {
 	c.Save()
