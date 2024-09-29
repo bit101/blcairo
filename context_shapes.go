@@ -320,6 +320,13 @@ func (c *Context) StrokeQuadraticCurveThrough(x0, y0, x1, y1 float64) {
 	c.Stroke()
 }
 
+// StrokeBezierCurveObject strokes a bezier curve based on a BezierCurve object.
+func (c *Context) StrokeBezierCurveObject(bez *geom.BezierCurve) {
+	c.MoveTo(bez.P0.X, bez.P0.Y)
+	c.CurveTo(bez.P1.X, bez.P1.Y, bez.P2.X, bez.P2.Y, bez.P3.X, bez.P3.Y)
+	c.Stroke()
+}
+
 ////////////////////
 // ELLIPSE
 ////////////////////
@@ -534,7 +541,7 @@ func (c *Context) Hatch(count int, x, y, size, rotation, rand float64) {
 		stroke := line.Perpendicular(geom.NewPoint(cx+cos*n, cy+sin*n))
 		// find where that stroke intersects the enclosing square
 		points := geom.LineOnRect(
-			stroke.X0, stroke.Y0, stroke.X1, stroke.Y1,
+			stroke.PointA.X, stroke.PointA.Y, stroke.PointB.X, stroke.PointB.Y,
 			x, y, size, size,
 		)
 		// ensure it intersects in two points
@@ -647,12 +654,12 @@ func (c *Context) StrokeLine(x0, y0, x1, y1 float64) {
 
 // StrokeLineObject strokes a line between two points.
 func (c *Context) StrokeLineObject(line *geom.Line) {
-	c.LineThrough(line.X0, line.Y0, line.X1, line.Y1, c.Width+c.Height)
+	c.LineThrough(line.PointA.X, line.PointA.Y, line.PointB.X, line.PointB.Y, c.Width+c.Height)
 }
 
 // StrokeSegmentObject strokes a line segment between two points.
 func (c *Context) StrokeSegmentObject(seg *geom.Segment) {
-	c.StrokeLine(seg.X0, seg.Y0, seg.X1, seg.Y1)
+	c.StrokeLine(seg.PointA.X, seg.PointA.Y, seg.PointB.X, seg.PointB.Y)
 }
 
 // StrokeSegmentList strokes a list of line segments.
@@ -1197,15 +1204,15 @@ func (c *Context) Tube(c0, c1 *geom.Circle) {
 	seg0 := geom.TangentSegmentToCircles(c0, c1, -1)
 	seg1 := geom.TangentSegmentToCircles(c0, c1, 1)
 
-	c.LineTo(seg0.X0, seg0.Y0)
-	c.LineTo(seg0.X1, seg0.Y1)
-	start := math.Atan2(seg0.Y1-c1.Y, seg0.X1-c1.X)
-	end := math.Atan2(seg1.Y1-c1.Y, seg1.X1-c1.X)
+	c.LineTo(seg0.PointA.X, seg0.PointA.Y)
+	c.LineTo(seg0.PointB.X, seg0.PointB.Y)
+	start := math.Atan2(seg0.PointB.Y-c1.Y, seg0.PointB.X-c1.X)
+	end := math.Atan2(seg1.PointB.Y-c1.Y, seg1.PointB.X-c1.X)
 	c.Arc(c1.X, c1.Y, c1.Radius, start, end, false)
 
-	c.LineTo(seg1.X1, seg1.Y1)
-	start = math.Atan2(seg1.Y0-c0.Y, seg1.X0-c0.X)
-	end = math.Atan2(seg0.Y0-c0.Y, seg0.X0-c0.X)
+	c.LineTo(seg1.PointB.X, seg1.PointB.Y)
+	start = math.Atan2(seg1.PointA.Y-c0.Y, seg1.PointA.X-c0.X)
+	end = math.Atan2(seg0.PointA.Y-c0.Y, seg0.PointA.X-c0.X)
 	c.Arc(c0.X, c0.Y, c0.Radius, start, end, false)
 }
 
