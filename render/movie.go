@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+
+	"github.com/bit101/go-ansi"
 )
 
 //////////////////////////////
@@ -46,17 +48,17 @@ func (m *Movie) NewAct(name string, frameCount int, renderFunc FrameFunc, render
 	}
 }
 
-// PlayAct plays a given act if the video exists.
+// PlayAct plays the named act if the video exists.
 func (m *Movie) PlayAct(act string) {
 	m.Acts[act].play()
 }
 
-// PlayIndex plays a given act if the video exists.
+// PlayIndex plays the indexed act if the video exists.
 func (m *Movie) PlayIndex(actIndex int) {
 	m.List[actIndex].play()
 }
 
-// PlayAll plays all acts in order.
+// PlayAll plays all acts in order of how they were added.
 func (m *Movie) PlayAll() {
 	for _, act := range m.List {
 		act.play()
@@ -73,8 +75,10 @@ func (m *Movie) Clean() {
 }
 
 // CombineAll combines all rendered act videos into a single movie, and optionally plays that movie.
-// This relies on all acts having been rendered. It will fail if there is a missing act video.
+// This method will create a movie as long as at least one of the act videos exists,
+// but will display which act videos are missing.
 func (m *Movie) CombineAll(play bool) {
+	ansi.ClearScreen()
 	m.WriteManifest()
 	cmd := exec.Command(
 		"ffmpeg", "-y",
@@ -84,6 +88,7 @@ func (m *Movie) CombineAll(play bool) {
 		"out/"+m.Name+".mp4",
 	)
 	cmd.Run()
+	fmt.Printf("Movie %q complete.\n", m.Name)
 	if play {
 		m.PlayCombined()
 	}
@@ -93,7 +98,7 @@ func (m *Movie) CombineAll(play bool) {
 func (m *Movie) PlayCombined() {
 	fileName := "out/" + m.Name + ".mp4"
 	if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
-		fmt.Println(err)
+		ansi.Println(ansi.Red, err)
 	} else {
 		PlayVideo(fileName)
 	}
@@ -103,7 +108,11 @@ func (m *Movie) PlayCombined() {
 func (m *Movie) WriteManifest() {
 	output := ""
 	for _, act := range m.List {
-		output += "file " + act.Name + ".mp4\n"
+		fileName := act.Name + ".mp4"
+		output += "file " + fileName + "\n"
+		if _, err := os.Stat("out/" + fileName); errors.Is(err, os.ErrNotExist) {
+			ansi.Println(ansi.Red, err)
+		}
 	}
 	os.WriteFile("out/"+m.Name+".manifest", []byte(output), 0777)
 }
