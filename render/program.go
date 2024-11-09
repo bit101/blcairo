@@ -79,7 +79,8 @@ func (p *Program) Render(frames string) {
 			percent := float64(f) / float64(scene.FrameCount)
 
 			totalPercent := float64(currentFrame) / totalFrames
-			setProgress(currentFrame, p.TotalFrames(), totalPercent)
+			sceneName := fmt.Sprintf("scene %d", f)
+			setProgress(sceneName, currentFrame, p.TotalFrames(), totalPercent)
 			scene.FrameFunc(context, p.Width, p.Height, percent)
 			surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, currentFrame))
 			currentFrame++

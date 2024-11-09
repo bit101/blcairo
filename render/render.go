@@ -38,7 +38,7 @@ func Image(width, height float64, path string, frameFunc FrameFunc, percent floa
 }
 
 // Frames sets up the renderin of a series of frames.
-func Frames(width, height float64, numFrames int, frames string, frameFunc FrameFunc) {
+func Frames(renderName string, width, height float64, numFrames int, frames string, frameFunc FrameFunc) {
 	initProgress()
 	os.RemoveAll(frames)
 	os.MkdirAll(frames, 0755)
@@ -46,7 +46,7 @@ func Frames(width, height float64, numFrames int, frames string, frameFunc Frame
 	context := cairo.NewContext(surface)
 	for frame := 0; frame < numFrames; frame++ {
 		percent := float64(frame) / float64(numFrames)
-		setProgress(frame, numFrames, percent)
+		setProgress(renderName, frame, numFrames, percent)
 		frameFunc(context, width, height, percent)
 		surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, frame))
 	}
@@ -66,7 +66,8 @@ func FrameRange(width, height float64, numFrames, start, end int, frames string,
 	context := cairo.NewContext(surface)
 	for frame := start; frame <= end; frame++ {
 		percent := float64(frame) / float64(numFrames)
-		setProgress(frame, numFrames, percent)
+		fr := fmt.Sprintf("range: %d-%d", start, end)
+		setProgress(fr, frame, numFrames, percent)
 		frameFunc(context, width, height, percent)
 		surface.WriteToPNG(fmt.Sprintf("%s/frame_%04d.png", frames, frame))
 	}
@@ -93,7 +94,7 @@ func SpriteSheet(width, height float64, bg blcolor.Color, path string, numFrames
 		context.Save()
 		context.Translate(x, y)
 		percent := i / float64(numFrames)
-		setProgress(int(i), numFrames, percent)
+		setProgress("sprite sheet", int(i), numFrames, percent)
 		frameFunc(context, width, height, percent)
 		context.Restore()
 
@@ -114,7 +115,7 @@ func initProgress() {
 	startTime = time.Now()
 }
 
-func setProgress(frame, total int, percent float64) {
+func setProgress(renderName string, frame, total int, percent float64) {
 	ansi.Save()
 	ansi.MoveTo(1, 1)
 	ansi.ClearLine()
@@ -129,6 +130,7 @@ func setProgress(frame, total int, percent float64) {
 		}
 	}
 	fmt.Println("]")
+	fmt.Println(renderName)
 	fmt.Printf("Frame %d of %d (%0.1f%%)\n", frame, total, percent*100)
 
 	endTime := time.Now()
