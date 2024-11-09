@@ -95,7 +95,7 @@ func (p *Program) RenderAndPlayVideo(frames, fileName string) {
 // RenderVideo renders the program to a video file using the given frames directory and output filename
 func (p *Program) RenderVideo(frames, fileName string) {
 	p.Render(frames)
-	ConvertToVideo(frames, fileName, p.Width, p.Height, p.FPS, p.Seconds())
+	ConvertToVideo(frames, fileName, p.Width, p.Height, p.FPS, p.Seconds(), true)
 }
 
 // RenderGif renders the program to a video file using the given frames directory and output filename

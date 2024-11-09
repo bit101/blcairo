@@ -88,8 +88,10 @@ func FfmpegToGIF(folder, outFileName string, fps int) {
 }
 
 // ConvertToVideo converts a folder of pngs into an mp4 video file. Requires ffmpeg.
-func ConvertToVideo(folder, outFileName string, w, h float64, fps, seconds int) {
-	fmt.Println("Converting to video...")
+func ConvertToVideo(folder, outFileName string, w, h float64, fps, seconds int, verbose bool) {
+	if verbose {
+		fmt.Println("Converting to video...")
+	}
 	os.RemoveAll(outFileName)
 	path := folder + "/frame_%04d." + imageRenderType
 	fpsArg := fmt.Sprintf("%d", fps)
@@ -102,16 +104,18 @@ func ConvertToVideo(folder, outFileName string, w, h float64, fps, seconds int) 
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Video complete!")
-	data, err := os.Stat(outFileName)
-	fmt.Println("File:", outFileName)
-	fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
-	fmt.Printf("FPS: %d\n", fps)
-	fmt.Printf("Time: %d seconds\n", seconds)
-	minutes := seconds / 60
-	seconds = seconds % 60
-	fmt.Printf("Time: %d:%02d\n", minutes, seconds)
-	fmt.Printf("Size: %dkb\n", data.Size()/1000)
+	if verbose {
+		fmt.Println("Video complete!")
+		data, _ := os.Stat(outFileName)
+		fmt.Println("File:", outFileName)
+		fmt.Printf("Resolution: %dx%d\n", int(w), int(h))
+		fmt.Printf("FPS: %d\n", fps)
+		fmt.Printf("Time: %d seconds\n", seconds)
+		minutes := seconds / 60
+		seconds = seconds % 60
+		fmt.Printf("Time: %d:%02d\n", minutes, seconds)
+		fmt.Printf("Size: %dkb\n", data.Size()/1000)
+	}
 }
 
 // MixAV mixes an audio and video file.
