@@ -39,13 +39,23 @@ func NewMovie(name string, width, height, fps int) *Movie {
 }
 
 // NewAct adds an act to this movie.
-func (m *Movie) NewAct(name string, frameCount int, renderFunc FrameFunc, render bool) {
+func (m *Movie) NewAct(name string, frameCount int, renderFunc FrameFunc, render bool, play bool) {
 	act := newAct(m, name, frameCount, renderFunc)
 	m.Acts[name] = act
 	m.List = append(m.List, act)
 	if render {
 		act.render()
 	}
+	if play {
+		act.play()
+	}
+}
+
+// ReuseAct adds an existing act to a different location in this movie.
+// This will re-use the already-rendered video for this act, instead of re-rendering it.
+func (m *Movie) ReuseAct(name string) {
+	act := m.Acts[name]
+	m.List = append(m.List, act)
 }
 
 // PlayAct plays the named act if the video exists.

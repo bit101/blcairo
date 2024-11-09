@@ -24,7 +24,7 @@ func newAct(parent *Movie, name string, frameCount int, renderFunc FrameFunc) *A
 func (a *Act) render() {
 	frames := "out/" + a.Name + "_frames"
 	fileName := "out/" + a.Name + ".mp4"
-	Frames(float64(a.Parent.Width), float64(a.Parent.Height), a.FrameCount, frames, a.RenderFunc)
+	Frames("act: "+a.Name, float64(a.Parent.Width), float64(a.Parent.Height), a.FrameCount, frames, a.RenderFunc)
 	ConvertToVideo(
 		frames,
 		fileName,
