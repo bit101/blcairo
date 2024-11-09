@@ -8,7 +8,9 @@ import (
 	cairo "github.com/bit101/blcairo"
 )
 
-// Program contains a collection of scenes
+// Program contains a collection of scenes that are rendered into a single video.
+// A better paradigm is the Movie/Act system where each act is rendered separately as needed
+// and then combined to a single movie with ffmpeg.
 type Program struct {
 	Width, Height float64
 	FPS           int
