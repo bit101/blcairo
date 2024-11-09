@@ -8,7 +8,9 @@ import (
 	cairo "github.com/bit101/blcairo"
 )
 
-// Program contains a collection of scenes
+// Program contains a collection of scenes that are rendered into a single video.
+// A better paradigm is the Movie/Act system where each act is rendered separately as needed
+// and then combined to a single movie with ffmpeg.
 type Program struct {
 	Width, Height float64
 	FPS           int
@@ -95,7 +97,7 @@ func (p *Program) RenderAndPlayVideo(frames, fileName string) {
 // RenderVideo renders the program to a video file using the given frames directory and output filename
 func (p *Program) RenderVideo(frames, fileName string) {
 	p.Render(frames)
-	ConvertToVideo(frames, fileName, p.Width, p.Height, p.FPS, p.Seconds())
+	ConvertToVideo(frames, fileName, p.Width, p.Height, p.FPS, p.Seconds(), true)
 }
 
 // RenderGif renders the program to a video file using the given frames directory and output filename
