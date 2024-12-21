@@ -2,9 +2,11 @@
 package render
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/bit101/bitlib/blcolor"
@@ -29,12 +31,22 @@ func Image(width, height float64, path string, frameFunc FrameFunc, percent floa
 	surface := cairo.NewSurface(int(width), int(height))
 	context := cairo.NewContext(surface)
 	frameFunc(context, width, height, percent)
+	checkOutDir(path)
 	surface.WriteToPNG(path)
 	fmt.Println("Image complete!")
 	data, _ := os.Stat(path)
 	fmt.Println("File:", path)
 	fmt.Printf("Resolution: %dx%d\n", int(width), int(height))
 	fmt.Printf("Size: %0.2f kb\n", float64(data.Size())/1000)
+}
+
+func checkOutDir(path string) {
+	dir := filepath.Dir(path)
+	if _, err := os.Stat(dir); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			os.MkdirAll(dir, 0755)
+		}
+	}
 }
 
 // Frames sets up the renderin of a series of frames.
