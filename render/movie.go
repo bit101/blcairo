@@ -14,6 +14,12 @@ import (
 // MOVIE
 //////////////////////////////
 
+const (
+	Aspect16x9 = 16.0 / 9.0
+	Aspect4x3  = 4.0 / 3.0
+	Aspect1x1  = 1.0 / 1.0
+)
+
 // Movie represents a single movie containing multiple acts.
 // This differs from a Program/Scene setup in that each act of a movie is generated as a
 // separate named mp4 file, which would have to be concatenated separately.
@@ -24,23 +30,25 @@ type Movie struct {
 	FPS    int
 	Acts   map[string]*Act
 	List   []*Act
+	Out    string
 }
 
 // NewMovie creates a new movie.
-func NewMovie(name string, width, height, fps int) *Movie {
+func NewMovie(name string, width, height float64, fps int) *Movie {
 	return &Movie{
 		name,
-		width,
-		height,
+		int(width),
+		int(height),
 		fps,
 		map[string]*Act{}, // for accessing acts by name.
 		[]*Act{},          // for accessing acts by index or sequentially.
+		fmt.Sprintf("out_%d/", int(height)),
 	}
 }
 
 // NewAct adds an act to this movie.
 func (m *Movie) NewAct(name string, frameCount int, renderFunc FrameFunc, render bool, play bool) {
-	act := newAct(m, name, frameCount, renderFunc)
+	act := newAct(m, name, frameCount, m.Out, renderFunc)
 	m.Acts[name] = act
 	m.List = append(m.List, act)
 	if render {
@@ -80,8 +88,8 @@ func (m *Movie) Clean() {
 	for _, act := range m.Acts {
 		act.clean()
 	}
-	os.Remove("out/" + m.Name + ".manifest")
-	os.Remove("out/" + m.Name + ".mp4")
+	os.Remove(m.Out + m.Name + ".manifest")
+	os.Remove(m.Out + m.Name + ".mp4")
 }
 
 // CombineAll combines all rendered act videos into a single movie, and optionally plays that movie.
@@ -93,9 +101,9 @@ func (m *Movie) CombineAll(play bool) {
 	cmd := exec.Command(
 		"ffmpeg", "-y",
 		"-f", "concat",
-		"-i", "out/"+m.Name+".manifest",
+		"-i", m.Out+m.Name+".manifest",
 		"-c", "copy",
-		"out/"+m.Name+".mp4",
+		m.Out+m.Name+".mp4",
 	)
 	cmd.Run()
 	fmt.Printf("Movie %q complete.\n", m.Name)
@@ -106,7 +114,7 @@ func (m *Movie) CombineAll(play bool) {
 
 // PlayCombined plays combined movie if it exists.
 func (m *Movie) PlayCombined() {
-	fileName := "out/" + m.Name + ".mp4"
+	fileName := m.Out + m.Name + ".mp4"
 	if _, err := os.Stat(fileName); errors.Is(err, os.ErrNotExist) {
 		ansi.Println(ansi.Red, err)
 	} else {
@@ -120,9 +128,9 @@ func (m *Movie) WriteManifest() {
 	for _, act := range m.List {
 		fileName := act.Name + ".mp4"
 		output += "file " + fileName + "\n"
-		if _, err := os.Stat("out/" + fileName); errors.Is(err, os.ErrNotExist) {
+		if _, err := os.Stat(m.Out + fileName); errors.Is(err, os.ErrNotExist) {
 			ansi.Println(ansi.Red, err)
 		}
 	}
-	os.WriteFile("out/"+m.Name+".manifest", []byte(output), 0777)
+	os.WriteFile(m.Out+m.Name+".manifest", []byte(output), 0777)
 }
