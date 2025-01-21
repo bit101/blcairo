@@ -649,24 +649,38 @@ func (c *Context) ColorFringeRect(rx, ry, rw, rh, offset float64) {
 }
 
 // WarpNoise warps an image with Simplex noise.
+// centerX and Y control the center of the noise field. Most useful when animating freq.
 // freq scales the noise. Higher freq = more bumps.
 // offset controls how far pixels are pushed out of place
 // rotation adds rotation to the direction the pixels are pushed.
-// centerX and Y control the center of the noise field. Most useful when animating freq.
 // z is the z param of Simplex3. Can be used to animate the noise.
-func (c *Context) WarpNoise(freq, offset, rotation, centerX, centerY, z float64) {
+// radius is the maximum distance from the center where the effect will be applied.
+// If radius is less then or equal to zero, the effect will fill the full image.
+// If radius is greater than zero it will only extend that far, and the intensity of the effect
+// will fade as it approaches that limit, so it smoothly blends into the image.
+func (c *Context) WarpNoise(centerX, centerY, freq, offset, rotation, z, radius float64) {
 	s := NewSurface(c.Width, c.Height)
 	dstData, _ := ImageDataFromSurface(s)
 
 	srcData, _ := ImageDataFromSurface(c.Surface)
 	for x := 0.0; x < c.Width; x++ {
 		for y := 0.0; y < c.Height; y++ {
-			x1 := (x - centerX) / c.Width * freq
-			y1 := (y - centerY) / c.Width * freq
+			dx, dy := x-centerX, y-centerY
+			x1 := dx / c.Width * freq
+			y1 := dy / c.Width * freq
 
+			h := offset
 			n := noise.Simplex3(x1, y1, z)*blmath.Tau + rotation
+			if radius > 0 {
+				dist := math.Hypot(dx, dy)
+				if dist < radius {
+					h *= (1 - dist/radius)
+				} else {
+					h = 0
+				}
+			}
 
-			x2, y2 := x+math.Cos(n)*offset, y+math.Sin(n)*offset
+			x2, y2 := x+math.Cos(n)*h, y+math.Sin(n)*h
 			if x2 < 0 {
 				x2 = 0
 			} else if x2 >= c.Width {
@@ -684,16 +698,19 @@ func (c *Context) WarpNoise(freq, offset, rotation, centerX, centerY, z float64)
 	c.Surface.SetData(dstData.data)
 }
 
-// WarpRipple warps the image with a ripple like effect.
+// WarpRipple warps the image with a ripple like effect, constrained by a radius.
 // centerX, centerY is the center of the ripple.
 // spacing is the distance between consecutive rings.
 // offset determines the hight of the ripple.
 // phase moves the wave. Increasing phase from 0 to 1 will make the wave move out from the center a full cycle.
-func (c *Context) WarpRipple(centerX, centerY, spacing, offset, phase float64) {
+// radius is the maximum radius the ripple effects.
+// If radius is 0 or less, it will be ignored and the ripple will cover the full image.
+// If radius is greater than zero, the ripple will only extent to that distance. And the height of the ripple
+// will ramp from full height down to zero as it approaches the radius.
+func (c *Context) WarpRipple(centerX, centerY, spacing, offset, phase, radius float64) {
 	s := NewSurface(c.Width, c.Height)
 	dstData, _ := ImageDataFromSurface(s)
 	srcData, _ := ImageDataFromSurface(c.Surface)
-	// rings := radius / spacing
 
 	for x := 0.0; x < c.Width; x++ {
 		for y := 0.0; y < c.Height; y++ {
@@ -701,7 +718,14 @@ func (c *Context) WarpRipple(centerX, centerY, spacing, offset, phase float64) {
 			dy := y - centerY
 			dist := math.Hypot(dx, dy)
 			y2 := y
-			h := math.Sin((dist/spacing-phase)*blmath.Tau) * offset
+			h := math.Cos((dist/spacing-phase)*blmath.Tau) * offset
+			if radius > 0 {
+				if dist <= radius {
+					h *= 1 - (dist / radius)
+				} else {
+					h = 0
+				}
+			}
 
 			y2 = y + h
 
@@ -709,46 +733,6 @@ func (c *Context) WarpRipple(centerX, centerY, spacing, offset, phase float64) {
 				y2 = 0
 			} else if y2 >= c.Height {
 				y2 = c.Height - 1
-			}
-			r, g, b, a := srcData.GetPixel(int(x), int(y2))
-			dstData.SetPixel(int(x), int(y), r, g, b, a)
-		}
-	}
-	c.Surface.SetData(dstData.data)
-}
-
-// WarpRippleRadius warps the image with a ripple like effect, constrained by a radius.
-// centerX, centerY is the center of the ripple.
-// radius is the maximum radius the ripple effects.
-// spacing is the distance between consecutive rings.
-// offset determines the hight of the ripple.
-// phase moves the wave. Increasing phase from 0 to 1 will make the wave move out from the center a full cycle.
-// ramp will reduce the height of the ripple as it extends from the center to the radius so it smoothly blends into the image.
-func (c *Context) WarpRippleRadius(centerX, centerY, radius, spacing, offset, phase float64, ramp bool) {
-	s := NewSurface(c.Width, c.Height)
-	dstData, _ := ImageDataFromSurface(s)
-	srcData, _ := ImageDataFromSurface(c.Surface)
-	rings := radius / spacing
-
-	for x := 0.0; x < c.Width; x++ {
-		for y := 0.0; y < c.Height; y++ {
-			dx := x - centerX
-			dy := y - centerY
-			dist := math.Hypot(dx, dy)
-			y2 := y
-			if dist <= radius {
-				h := math.Cos((dist/radius*rings-phase)*blmath.Tau) * offset
-				if ramp {
-					h *= 1 - (dist / radius)
-				}
-
-				y2 = y + h
-
-				if y2 < 0 {
-					y2 = 0
-				} else if y2 >= c.Height {
-					y2 = c.Height - 1
-				}
 			}
 			r, g, b, a := srcData.GetPixel(int(x), int(y2))
 			dstData.SetPixel(int(x), int(y), r, g, b, a)
