@@ -1,3 +1,7 @@
+# Archived
+
+Project moved to https://codeberg.org/bit101/blcairo
+
 ## blcairo
 
 ### Go binding for the cairo graphics library
